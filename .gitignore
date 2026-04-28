@@ -1,0 +1,19 @@
+# Sealed held-out partition
+tenacious_bench_v0.1/held_out.jsonl
+
+# API keys
+.env
+*.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Training checkpoints (large files)
+training/checkpoints/
+*.bin
+*.safetensors
+
+# Cost log (keep local only)
+cost_log.csv

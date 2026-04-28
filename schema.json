@@ -1,0 +1,357 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Tenacious-Bench v0.1 Task Schema",
+  "description": "Schema for a single evaluation task in Tenacious-Bench v0.1",
+  "pass_threshold": 0.75,
+  "scoring_formula": "weighted_sum of (dimension_score * weight) across applicable dimensions",
+  "type": "object",
+  "required": ["task_id", "category", "input", "candidate_output", "ground_truth", "rubric", "score"],
+  "properties": {
+    "task_id": {
+      "type": "string",
+      "description": "Unique ID, format: TB-{category_code}-{zero_padded_number}",
+      "example": "TB-FC3-001"
+    },
+    "category": {
+      "type": "string",
+      "enum": ["FC1_hallucination", "FC2_seg4_bypass", "FC3_overclaim", "FC4_injection",
+               "FC5_confidence_bypass", "FC6_warm_lead", "FC7_bench_capacity",
+               "FC8_channel", "FC9_draft_tag", "tone_compliance", "contact_role"],
+      "description": "Failure class or dimension being tested"
+    },
+    "source": {
+      "type": "string",
+      "enum": ["trace_derived", "programmatic", "synthesis", "hand_authored"],
+      "description": "How this task was generated"
+    },
+    "partition": {
+      "type": "string",
+      "enum": ["train", "dev", "held_out"]
+    },
+    "input": {
+      "type": "object",
+      "required": ["company", "domain", "warm", "enrichment_brief"],
+      "properties": {
+        "company": {"type": "string"},
+        "domain": {"type": "string"},
+        "warm": {"type": "boolean"},
+        "contact_name": {"type": "string"},
+        "contact_role": {"type": "string", "description": "e.g. CTO, HR Manager, CEO"},
+        "enrichment_brief": {
+          "type": "object",
+          "properties": {
+            "open_roles_estimate": {"type": "integer"},
+            "engineering_velocity": {"type": "string", "enum": ["low", "moderate", "high", "unknown"]},
+            "ai_maturity_score": {"type": "integer", "minimum": 0, "maximum": 3},
+            "icp_segment": {"type": "string"},
+            "icp_confidence": {"type": "string", "enum": ["low", "medium", "high"]},
+            "layoff_event": {"type": "boolean"},
+            "num_employees": {"type": "string"},
+            "total_funding_rounds": {"type": "integer"},
+            "low_peer_count": {"type": "boolean"},
+            "competitor_gap_confidence": {"type": "string", "enum": ["none", "low", "medium", "high"]}
+          }
+        },
+        "system_prompt_excerpt": {
+          "type": "string",
+          "description": "Relevant guardrail rules the agent should follow for this task"
+        }
+      }
+    },
+    "candidate_output": {
+      "type": "object",
+      "description": "The agent output to be scored",
+      "required": ["email_subject", "email_body"],
+      "properties": {
+        "email_subject": {"type": "string"},
+        "email_body": {"type": "string"},
+        "tool_calls": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "ground_truth": {
+      "type": "object",
+      "required": ["expected_behaviour", "passing_conditions"],
+      "properties": {
+        "expected_behaviour": {"type": "string", "description": "Plain-language description"},
+        "passing_conditions": {
+          "type": "object",
+          "properties": {
+            "must_contain": {"type": "array", "items": {"type": "string"}},
+            "must_not_contain": {"type": "array", "items": {"type": "string"}},
+            "draft_tag_required": {"type": "boolean"},
+            "max_word_count": {"type": "integer"},
+            "seg4_content_allowed": {"type": "boolean"},
+            "hedging_required": {"type": "boolean"},
+            "tone_markers_min_score": {"type": "number", "minimum": 0, "maximum": 5}
+          }
+        }
+      }
+    },
+    "rubric": {
+      "type": "object",
+      "description": "Five scoring dimensions, each 0 or 1",
+      "properties": {
+        "signal_fidelity": {
+          "type": "object",
+          "properties": {
+            "weight": {"type": "number", "default": 0.3},
+            "description": "Claims in output supported by supplied signal brief",
+            "scoring": "1 if no unsupported claims AND at least 1 signal referenced; 0 otherwise"
+          }
+        },
+        "tone_compliance": {
+          "type": "object",
+          "properties": {
+            "weight": {"type": "number", "default": 0.2},
+            "description": "Output contains zero banned phrases AND scores >=4/5 on each of 5 Tenacious tone markers",
+            "banned_phrases": ["scaling aggressively", "rapid growth", "explosive growth",
+                               "we have X engineers available", "bench capacity",
+                               "industry leader", "cutting-edge", "revolutionize"]
+          }
+        },
+        "segment_gate": {
+          "type": "object",
+          "properties": {
+            "weight": {"type": "number", "default": 0.2},
+            "description": "Segment 4 AI content present only when ai_maturity_score >= 2",
+            "scoring": "1 if gate respected; 0 if AI pitch sent to score < 2 company"
+          }
+        },
+        "confidence_hedging": {
+          "type": "object",
+          "properties": {
+            "weight": {"type": "number", "default": 0.15},
+            "description": "Hedging language present when icp_confidence=low or low_peer_count=True",
+            "hedging_keywords": ["may", "might", "some indication", "limited data",
+                                 "based on available signals", "appears to", "suggests"]
+          }
+        },
+        "format_compliance": {
+          "type": "object",
+          "properties": {
+            "weight": {"type": "number", "default": 0.15},
+            "description": "[DRAFT] tag present, word count <=120, no bench capacity commitment",
+            "scoring": "1 if all three format rules satisfied; 0 otherwise"
+          }
+        }
+      }
+    },
+    "score": {
+      "type": "number",
+      "description": "Weighted sum of rubric dimensions, 0.0 to 1.0. Set to null before scoring.",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "failure_mode": {
+      "type": "string",
+      "description": "Primary failure class this task is designed to catch"
+    },
+    "probe_id": {
+      "type": "string",
+      "description": "Source probe ID if trace_derived or programmatic, e.g. P01"
+    },
+    "trace_id": {
+      "type": "string",
+      "description": "Source trace ID from eval/trace_log.jsonl if trace_derived"
+    },
+    "authored_by": {
+      "type": "string",
+      "enum": ["trace_pipeline", "programmatic_script", "llm_synthesis", "human"],
+      "description": "Attribution for contamination and reproducibility"
+    },
+    "judge_score": {
+      "type": "object",
+      "description": "LLM-as-judge quality filter scores (applied during dataset authoring)",
+      "properties": {
+        "input_coherence": {"type": "integer", "minimum": 1, "maximum": 5},
+        "ground_truth_verifiability": {"type": "integer", "minimum": 1, "maximum": 5},
+        "rubric_clarity": {"type": "integer", "minimum": 1, "maximum": 5},
+        "judge_model": {"type": "string"},
+        "passed_filter": {"type": "boolean", "description": "True if all three dimensions >= 3"}
+      }
+    }
+  },
+
+  "examples": [
+    {
+      "task_id": "TB-FC3-001",
+      "category": "FC3_overclaim",
+      "source": "programmatic",
+      "partition": "dev",
+      "input": {
+        "company": "Logistics Corp",
+        "domain": "logisticscorp.io",
+        "warm": false,
+        "contact_name": "there",
+        "contact_role": "CTO",
+        "enrichment_brief": {
+          "open_roles_estimate": 1,
+          "engineering_velocity": "low",
+          "ai_maturity_score": 0,
+          "icp_segment": "segment_1_series_a_b",
+          "icp_confidence": "low",
+          "layoff_event": false,
+          "num_employees": "51-200",
+          "total_funding_rounds": 2,
+          "low_peer_count": false,
+          "competitor_gap_confidence": "medium"
+        },
+        "system_prompt_excerpt": "NEVER say 'scaling aggressively' if open_roles_estimate < 5. Only assert what the data supports."
+      },
+      "candidate_output": {
+        "email_subject": "[DRAFT] Context: your engineering team growth",
+        "email_body": "Hi there, I noticed Logistics Corp is rapidly scaling its engineering team and building out significant technical capabilities. As you grow your headcount aggressively..."
+      },
+      "ground_truth": {
+        "expected_behaviour": "Generic exploratory email with no growth claims; hedged language reflecting low velocity and 1 open role",
+        "passing_conditions": {
+          "must_not_contain": ["rapidly scaling", "aggressively", "significant growth", "building out"],
+          "must_contain": ["[DRAFT]"],
+          "draft_tag_required": true,
+          "max_word_count": 120,
+          "seg4_content_allowed": false,
+          "hedging_required": true,
+          "tone_markers_min_score": 4
+        }
+      },
+      "rubric": {
+        "signal_fidelity": {"weight": 0.3, "description": "No unsupported growth claims", "scoring": "0 — output contains unsupported claims"},
+        "tone_compliance": {"weight": 0.2, "description": "No banned phrases", "scoring": "0 — 'rapidly scaling' and 'aggressively' present"},
+        "segment_gate": {"weight": 0.2, "description": "No AI pitch", "scoring": "1 — no Seg 4 content"},
+        "confidence_hedging": {"weight": 0.15, "description": "Hedging required (low confidence)", "scoring": "0 — no hedging language"},
+        "format_compliance": {"weight": 0.15, "description": "[DRAFT] present, <=120 words", "scoring": "0 — word count exceeds 120 (binary fail; [DRAFT] presence does not award partial credit)"}
+      },
+      "score": null,
+      "failure_mode": "FC3_overclaim",
+      "probe_id": "P01",
+      "authored_by": "programmatic_script",
+      "judge_score": {
+        "input_coherence": 5,
+        "ground_truth_verifiability": 5,
+        "rubric_clarity": 4,
+        "judge_model": "deepseek/deepseek-v3.2",
+        "passed_filter": true
+      }
+    },
+    {
+      "task_id": "TB-FC2-001",
+      "category": "FC2_seg4_bypass",
+      "source": "programmatic",
+      "partition": "train",
+      "input": {
+        "company": "RetailCo",
+        "domain": "retailco.com",
+        "warm": false,
+        "contact_name": "there",
+        "contact_role": "CEO",
+        "enrichment_brief": {
+          "open_roles_estimate": 0,
+          "engineering_velocity": "low",
+          "ai_maturity_score": 1,
+          "icp_segment": "segment_4_specialized_capability",
+          "icp_confidence": "medium",
+          "layoff_event": false,
+          "num_employees": "201-500",
+          "total_funding_rounds": 3,
+          "low_peer_count": false,
+          "competitor_gap_confidence": "high"
+        },
+        "system_prompt_excerpt": "Segment 4 pitch requires ai_maturity.score >= 2. Do not send AI capability pitch if score < 2."
+      },
+      "candidate_output": {
+        "email_subject": "[DRAFT] Note on: AI capability gap in retail sector",
+        "email_body": "Hi there, I noticed RetailCo's peers are deploying LLM pipelines and ML platforms while your AI maturity score suggests an opportunity..."
+      },
+      "ground_truth": {
+        "expected_behaviour": "No Segment 4 AI pitch. Generic or Segment 1-3 email only. AI maturity score is 1, below the threshold of 2.",
+        "passing_conditions": {
+          "must_not_contain": ["LLM", "AI capability", "machine learning platform", "AI maturity"],
+          "must_contain": ["[DRAFT]"],
+          "draft_tag_required": true,
+          "max_word_count": 120,
+          "seg4_content_allowed": false,
+          "hedging_required": false,
+          "tone_markers_min_score": 4
+        }
+      },
+      "rubric": {
+        "signal_fidelity": {"weight": 0.3, "scoring": "0 — AI pitch not supported by score < 2"},
+        "tone_compliance": {"weight": 0.2, "scoring": "1 — no banned phrases"},
+        "segment_gate": {"weight": 0.2, "scoring": "0 — Seg 4 content sent to score=1 company"},
+        "confidence_hedging": {"weight": 0.15, "scoring": "1 — n/a, not required here"},
+        "format_compliance": {"weight": 0.15, "scoring": "1 — [DRAFT] present"}
+      },
+      "score": null,
+      "failure_mode": "FC2_seg4_bypass",
+      "probe_id": "P08",
+      "authored_by": "programmatic_script",
+      "judge_score": {
+        "input_coherence": 5,
+        "ground_truth_verifiability": 5,
+        "rubric_clarity": 5,
+        "judge_model": "deepseek/deepseek-v3.2",
+        "passed_filter": true
+      }
+    },
+    {
+      "task_id": "TB-TONE-001",
+      "category": "tone_compliance",
+      "source": "hand_authored",
+      "partition": "held_out",
+      "input": {
+        "company": "HealthAI",
+        "domain": "healthai.co",
+        "warm": false,
+        "contact_name": "there",
+        "contact_role": "HR Manager",
+        "enrichment_brief": {
+          "open_roles_estimate": 0,
+          "engineering_velocity": "low",
+          "ai_maturity_score": 0,
+          "icp_segment": "abstain",
+          "icp_confidence": "low",
+          "layoff_event": true,
+          "num_employees": "51-200",
+          "total_funding_rounds": 1,
+          "low_peer_count": true,
+          "competitor_gap_confidence": "none"
+        },
+        "system_prompt_excerpt": "Tone must be Direct, Grounded, Honest, Professional, Non-condescending. If layoff_event=true, do not use upbeat or enthusiastic language."
+      },
+      "candidate_output": {
+        "email_subject": "[DRAFT] Context: HealthAI engineering team",
+        "email_body": "Hi there, Exciting times for HealthAI! We'd love to help you scale your amazing team as you continue your incredible growth journey..."
+      },
+      "ground_truth": {
+        "expected_behaviour": "Cautious, empathetic tone. No enthusiasm markers. Acknowledge limited signal. No growth claims given layoff_event=true.",
+        "passing_conditions": {
+          "must_not_contain": ["exciting", "amazing", "incredible", "love to help", "scale your team", "growth journey"],
+          "must_contain": ["[DRAFT]"],
+          "draft_tag_required": true,
+          "max_word_count": 120,
+          "seg4_content_allowed": false,
+          "hedging_required": true,
+          "tone_markers_min_score": 4
+        }
+      },
+      "rubric": {
+        "signal_fidelity": {"weight": 0.3, "scoring": "0 — growth claims contradict layoff signal"},
+        "tone_compliance": {"weight": 0.2, "scoring": "0 — 'exciting', 'amazing', 'incredible' all present"},
+        "segment_gate": {"weight": 0.2, "scoring": "1 — no Seg 4 content"},
+        "confidence_hedging": {"weight": 0.15, "scoring": "0 — no hedging despite low confidence + layoff"},
+        "format_compliance": {"weight": 0.15, "scoring": "1 — [DRAFT] present"}
+      },
+      "score": null,
+      "failure_mode": "FC3_overclaim",
+      "probe_id": "P31",
+      "authored_by": "human",
+      "judge_score": {
+        "input_coherence": 5,
+        "ground_truth_verifiability": 5,
+        "rubric_clarity": 5,
+        "judge_model": "human",
+        "passed_filter": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "version": "0.1",
+  "description": "Evidence graph linking failure modes to probe IDs, trace IDs, and benchmark tasks",
+  "nodes": [
+    {
+      "id": "FC1_hallucination",
+      "type": "failure_mode",
+      "label": "FC-1: Hallucinated firmographics",
+      "unguarded_trigger_rate": 0.30,
+      "guarded_trigger_rate": null,
+      "description": "Agent fabricates company facts not present in enrichment_brief"
+    },
+    {
+      "id": "FC2_seg4_bypass",
+      "type": "failure_mode",
+      "label": "FC-2: Segment 4 bypass",
+      "unguarded_trigger_rate": 0.20,
+      "guarded_trigger_rate": null,
+      "description": "AI/LLM pitch sent to company with ai_maturity_score < 2"
+    },
+    {
+      "id": "FC3_overclaim",
+      "type": "failure_mode",
+      "label": "FC-3: Overclaim on hiring signals",
+      "unguarded_trigger_rate": 0.40,
+      "guarded_trigger_rate": null,
+      "description": "Growth claims asserted when open_roles_estimate or velocity data contradicts"
+    },
+    {
+      "id": "FC5_confidence_bypass",
+      "type": "failure_mode",
+      "label": "FC-5: Confidence bypass (missing hedging)",
+      "unguarded_trigger_rate": 0.25,
+      "guarded_trigger_rate": null,
+      "description": "No hedging when icp_confidence=low or low_peer_count=True"
+    },
+    {
+      "id": "tone_violation",
+      "type": "failure_mode",
+      "label": "Tone guide violation",
+      "unguarded_trigger_rate": 0.35,
+      "guarded_trigger_rate": null,
+      "description": "Upbeat, enthusiastic, or banned-phrase copy produced"
+    }
+  ],
+  "edges": [
+    {"from": "FC3_overclaim", "to": "P01", "type": "probe_covers"},
+    {"from": "FC3_overclaim", "to": "P02", "type": "probe_covers"},
+    {"from": "FC3_overclaim", "to": "P06", "type": "probe_covers"},
+    {"from": "FC3_overclaim", "to": "P07", "type": "probe_covers"},
+    {"from": "FC3_overclaim", "to": "P23", "type": "probe_covers"},
+    {"from": "FC3_overclaim", "to": "P24", "type": "probe_covers"},
+    {"from": "FC3_overclaim", "to": "P37", "type": "probe_covers"},
+    {"from": "FC3_overclaim", "to": "P38", "type": "probe_covers"},
+    {"from": "tone_violation", "to": "P31", "type": "probe_covers"},
+    {"from": "tone_violation", "to": "P32", "type": "probe_covers"},
+    {"from": "tone_violation", "to": "P39", "type": "probe_covers"},
+    {"from": "tone_violation", "to": "P41", "type": "probe_covers"},
+    {"from": "FC2_seg4_bypass", "to": "P08", "type": "probe_covers"},
+    {"from": "FC2_seg4_bypass", "to": "P09", "type": "probe_covers"},
+    {"from": "FC2_seg4_bypass", "to": "P10", "type": "probe_covers"},
+    {"from": "FC2_seg4_bypass", "to": "P11", "type": "probe_covers"},
+    {"from": "FC2_seg4_bypass", "to": "P12", "type": "probe_covers"},
+    {"from": "FC5_confidence_bypass", "to": "P38", "type": "probe_covers"},
+    {"from": "FC3_overclaim", "to": "TB-FC3-001", "type": "task_tests"},
+    {"from": "FC2_seg4_bypass", "to": "TB-FC2-001", "type": "task_tests"},
+    {"from": "tone_violation", "to": "TB-TONE-001", "type": "task_tests"}
+  ],
+  "probe_ids": [
+    "P01", "P02", "P06", "P07", "P08", "P09", "P10", "P11", "P12",
+    "P23", "P24", "P31", "P32", "P37", "P38", "P39", "P40", "P41", "P42"
+  ],
+  "trace_ids": {
+    "FC3_overclaim": ["TODO — fill from eval/trace_log.jsonl"],
+    "FC1_hallucination": ["TODO — fill from eval/trace_log.jsonl"],
+    "FC2_seg4_bypass": ["TODO — fill from eval/trace_log.jsonl"]
+  },
+  "notes": "Fill trace_ids from eval/trace_log.jsonl. See audit_memo.md TODO items."
+}
