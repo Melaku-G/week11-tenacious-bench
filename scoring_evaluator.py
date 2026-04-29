@@ -59,6 +59,16 @@ GROWTH_CLAIM_PATTERNS = [
     r"\bengineers?\s+(?:available|ready to deploy|on bench)\b",
 ]
 
+# Stronger growth claims: only fired when hard negative signal (layoff=True OR open_roles=0).
+# IRA R3 confirmed (2026-04-29): human annotator flagged these as signal_fidelity failures
+# specifically when layoff_event=True was present. R3 did NOT flag them for velocity=low alone.
+STRONG_NEGATIVE_GROWTH_PATTERNS = [
+    r"scal\w+\s+(?:its\s+|your\s+)?(?:engineering\s+)?(?:team|operations)",  # "scale operations"
+    r"scal\w+\s+aggressively",             # "scaling aggressively" as growth claim (IRA R3)
+    r"raised\s+a?\s*series\s+[a-zA-Z]",   # "raised a Series B/C"
+    r"expanding\s+into\s+\w",             # "expanding into three new markets"
+]
+
 
 # ── Dimension scorers ──────────────────────────────────────────────────────────
 
@@ -74,14 +84,19 @@ def score_signal_fidelity(task: dict) -> tuple[float, str]:
     layoff = brief.get("layoff_event", False)
 
     # Fail if unsupported growth claims are present when signals are negative.
-    # Positive signal-reference check is intentionally omitted — generic anchors
-    # ("engineer", "team") match any tech email and add noise without catching real failures.
-    # Presence of good claims is graded by the LLM judge layer (score_tone_compliance_llm).
     low_signal = open_roles < 3 or velocity in ("low", "unknown") or layoff
     if low_signal:
         for pattern in GROWTH_CLAIM_PATTERNS:
             if re.search(pattern, full_text):
                 return 0.0, f"unsupported growth claim matched: {pattern}"
+
+    # Stronger patterns only fire on hard negative signals (layoff=True OR open_roles=0).
+    # IRA R3 confirmed: annotator flagged these specifically in layoff+zero-role contexts.
+    hard_negative = layoff or open_roles == 0
+    if hard_negative:
+        for pattern in STRONG_NEGATIVE_GROWTH_PATTERNS:
+            if re.search(pattern, full_text):
+                return 0.0, f"unsupported growth claim (hard-negative context): {pattern}"
 
     return 1.0, "pass"
 

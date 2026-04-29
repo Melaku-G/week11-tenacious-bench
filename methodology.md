@@ -130,17 +130,57 @@ Trigger for rubric revision: any dimension below 80% agreement between R1 and R3
 | format_compliance | 76.7% | 23/30 |
 | **Overall (score ≥ 0.75)** | **76.7%** | **23/30** |
 
-**R2 / R3 status:** Pending. R2 (LLM judge via OpenRouter) and R3 (human annotator)
-runs scheduled for Day 3. Cohen's κ targets: signal_fidelity ≥ 0.70,
-tone_compliance ≥ 0.80, segment_gate ≥ 0.85, confidence_hedging ≥ 0.70,
-format_compliance ≥ 0.90, overall ≥ 0.75. Results will be appended here.
+**R2 results (LLM judge, meta-llama/llama-3.1-8b-instruct, 2026-04-29, n=30):**
 
-**Observation:** `confidence_hedging` at 50.0% pass rate (R1) is the weakest dimension —
-consistent with the finding across the full train partition (mean 0.439). This reflects
-that ~50% of the IRA sample has `icp_confidence=low` or `low_peer_count=True`, triggering
-the hedging requirement on emails that were injected without hedging language. The rubric
-definition is unambiguous; the low pass rate is by design, not a rubric failure.
-No revision triggered for R1.
+Two runs conducted (original prompt; refined prompt with explicit condition logic).
+Best summary: tone_compliance achieves κ=1.00 in both runs; all other dimensions fail.
+
+| Dimension | R1 pass% | Run 1 κ | Run 2 κ | Target | Notes |
+|-----------|----------|---------|---------|--------|-------|
+| signal_fidelity | 100.0% | 0.00† | 0.00† | ≥ 0.70 | Artifact; R1 uniform |
+| tone_compliance | 86.7% | **1.00** | **1.00** | ≥ 0.80 | Only stable dimension |
+| segment_gate | 83.3% | 0.00† | −0.27 | ≥ 0.85 | R2 unreliable |
+| confidence_hedging | 53.3% | 0.15 | 0.08 | ≥ 0.70 | R2 inverts condition logic |
+| format_compliance | 76.7% | −0.06 | −0.30 | ≥ 0.90 | R2 hallucinates [DRAFT] |
+| **Overall** | 73.3% | 0.26 | 0.04 | ≥ 0.75 | Neither run meets target |
+
+†kappa=0.00 is a statistical artifact (near-uniform R1 scores).
+
+**Key finding:** LLaMA 3.1 8B is prompt-sensitive and cannot reliably apply multi-step
+conditional rubric criteria. `tone_compliance` (pure lexical check) is the only dimension
+reproducible by the LLM judge. For R2 to meet κ targets, a Claude Sonnet or GPT-4 class
+model is required. This is a v0.2 task.
+
+**`signal_fidelity` secondary finding:** Run 1 R2 detected 5 failures R1 misses — emails
+claiming "raised a Series B" when brief has open_roles=0. R1's GROWTH_CLAIM_PATTERNS
+lacks funding-claim patterns. Pending R3 adjudication before scorer update.
+
+**R3 results (human annotator, Melaku Y., 2026-04-29, n=30):**
+
+| Dimension | R1 vs R3 κ | R2 vs R3 κ | Target | R1 status |
+|-----------|-----------|-----------|--------|-----------|
+| signal_fidelity | 0.00† | 0.41 | ≥ 0.70 | ARTIFACT |
+| tone_compliance | **1.00** | **1.00** | ≥ 0.80 | **PASS** |
+| segment_gate | **1.00** | −0.27 | ≥ 0.85 | **PASS** |
+| confidence_hedging | **1.00** | 0.08 | ≥ 0.70 | **PASS** |
+| format_compliance | **1.00** | −0.30 | ≥ 0.90 | **PASS** |
+| **Overall (≥0.75)** | **0.77** | 0.25 | ≥ 0.75 | **PASS** |
+
+† κ=0.00 is a statistical artifact (R1 uniform 100% on signal_fidelity). Actual R1 vs R3
+agreement: 83.3%, with 5 tasks where R3 correctly flagged R1 misses (see below).
+
+**R1 IRA status: PASS** (overall κ=0.77, target ≥ 0.75).
+
+**Signal_fidelity rubric update (triggered by R3):** R3 disagrees with R1 on 5 tasks — all
+emails containing growth claims (raised a Series B, scale operations, scaling aggressively)
+paired with `layoff=True OR open_roles=0`. R1 was under-specified. Per IRA protocol
+(R1 disagrees with R2+R3 → update scorer):
+
+Added `STRONG_NEGATIVE_GROWTH_PATTERNS` to `scoring_evaluator.py`, fired only when
+`layoff=True OR open_roles=0`. All 5 disputed tasks now score 0 on signal_fidelity.
+Updated partition scores: train mean=0.783, dev mean=0.747, held_out mean=0.732.
+
+Full results: `bench/ira_kappa_final.json`.
 
 ---
 

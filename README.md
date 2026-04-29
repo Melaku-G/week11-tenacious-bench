@@ -27,9 +27,11 @@ for the full gap analysis. The short version:
 
 | Partition | File | Tasks | Mean score | Pass rate | Use |
 |-----------|------|-------|------------|-----------|-----|
-| Train | `tenacious_bench_v0.1/train.jsonl` | 217 (56%) | 0.872 | 85.7% | SFT training data |
-| Dev | `tenacious_bench_v0.1/dev.jsonl` | 105 (27%) | 0.836 | 77.1% | Iteration during authoring |
-| Held-out | `tenacious_bench_v0.1/held_out.jsonl` | 62 (16%) | — | — | Sealed — final ablation only |
+| Train | `tenacious_bench_v0.1/train.jsonl` | 217 (56%) | 0.783 | 61.3% | SFT training data |
+| Dev | `tenacious_bench_v0.1/dev.jsonl` | 105 (27%) | 0.747 | 53.3% | Iteration during authoring |
+| Held-out | `tenacious_bench_v0.1/held_out.jsonl` | 62 (16%) | 0.732 | 53.2% | Sealed — final ablation only |
+
+_Updated 2026-04-29 post-IRA: signal_fidelity patterns extended (IRA R1 vs R3 κ=0.77, PASS)._
 
 **Total: 384 tasks** across four authoring modes:
 

@@ -1,0 +1,36 @@
+{
+  "run_date": "2026-04-29",
+  "n": 30,
+  "r1_vs_r2": {
+    "signal_fidelity": {
+      "kappa": 0.0,
+      "target": 0.7,
+      "pass": false
+    },
+    "tone_compliance": {
+      "kappa": 1.0,
+      "target": 0.8,
+      "pass": true
+    },
+    "segment_gate": {
+      "kappa": -0.2727,
+      "target": 0.85,
+      "pass": false
+    },
+    "confidence_hedging": {
+      "kappa": 0.0758,
+      "target": 0.7,
+      "pass": false
+    },
+    "format_compliance": {
+      "kappa": -0.3043,
+      "target": 0.9,
+      "pass": false
+    }
+  },
+  "overall": {
+    "kappa": 0.0367,
+    "target": 0.75,
+    "pass": false
+  }
+}

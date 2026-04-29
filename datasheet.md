@@ -65,8 +65,10 @@ synthesis seed=99.
 | **Total** | **217** | **105** | **62** | **384** |
 
 **Scoring evaluator:** `bench/scoring_evaluator.py` — regex + keyword matching, no LLM
-calls, deterministic. Mean scores (all sources): train 0.872, dev 0.836, held_out 0.799.
-Pass rate (score ≥ 0.75): train 85.7%, dev 77.1%, held_out 67.7%.
+calls, deterministic. Updated 2026-04-29 after IRA R3: added STRONG_NEGATIVE_GROWTH_PATTERNS
+for signal_fidelity (IRA-confirmed failures). Post-update scores: train mean=0.783 (pass 61.3%),
+dev mean=0.747 (pass 53.3%), held_out mean=0.732 (pass 53.2%). IRA R1 vs R3 overall κ=0.77
+(target ≥ 0.75 — **PASS**).
 
 ---
 
