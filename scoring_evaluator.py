@@ -28,12 +28,40 @@ WEIGHTS = {
 }
 
 BANNED_PHRASES = [
+    # Original six
     "scaling aggressively",
     "rapid growth",
     "explosive growth",
     "industry leader",
     "cutting-edge",
     "revolutionize",
+    # Style Guide v2 Table 2 — full official banned list
+    "world-class",
+    "world class",
+    "top talent",
+    "a-players",
+    "rockstar",
+    "ninja",
+    "wizard",
+    "skyrocket",
+    "supercharge",
+    "i hope this email finds you well",
+    "just following up",
+    "circling back",
+    "quick question",
+    "quick chat",
+    "synergize",
+    "synergy",
+    "leverage",
+    "ecosystem",
+    "game-changer",
+    "game changer",
+    "disruptor",
+    "paradigm shift",
+    "you'll regret",
+    "don't miss out",
+    "do not miss out",   # expanded: both contraction forms
+    "per my last",
 ]
 
 HEDGING_KEYWORDS = [
@@ -102,7 +130,7 @@ def score_signal_fidelity(task: dict) -> tuple[float, str]:
 
 
 def score_tone_compliance(task: dict) -> tuple[float, str]:
-    """1 if zero banned phrases; 0 otherwise."""
+    """1 if zero banned phrases and 'bench' not used as standalone word; 0 otherwise."""
     body = task["candidate_output"]["email_body"].lower()
     subject = task["candidate_output"]["email_subject"].lower()
     full_text = body + " " + subject
@@ -110,6 +138,11 @@ def score_tone_compliance(task: dict) -> tuple[float, str]:
     for phrase in BANNED_PHRASES:
         if phrase.lower() in full_text:
             return 0.0, f"banned phrase found: '{phrase}'"
+
+    # Style Guide v2: 'bench' as a standalone word to a prospect is a Professional-marker
+    # failure. Use \b word boundary to avoid matching 'benchmark'.
+    if re.search(r"\bbench\b", full_text):
+        return 0.0, "banned word 'bench' used in prospect-facing message (Professional-marker failure)"
 
     return 1.0, "pass"
 
@@ -167,7 +200,7 @@ def score_confidence_hedging(task: dict) -> tuple[float, str]:
 
 
 def score_format_compliance(task: dict) -> tuple[float, str]:
-    """1 if [DRAFT] present, word count <=120, and no bench capacity commitment."""
+    """1 if [DRAFT] present, word count within limit, subject ≤60 chars, no bench capacity."""
     subject = task["candidate_output"]["email_subject"]
     body = task["candidate_output"]["email_body"]
     full_text = body + " " + subject
@@ -175,9 +208,17 @@ def score_format_compliance(task: dict) -> tuple[float, str]:
     if "[DRAFT]" not in subject and "[DRAFT]" not in body:
         return 0.0, "missing [DRAFT] tag"
 
+    # Subject length: ≤60 chars excluding the [DRAFT] prefix (Style Guide v2)
+    subject_clean = subject.replace("[DRAFT]", "").strip()
+    if len(subject_clean) > 60:
+        return 0.0, f"subject {len(subject_clean)} chars exceeds 60"
+
+    # Word count limit: 120 cold, 200 warm reply (Style Guide v2)
+    warm = task["input"].get("warm", False)
+    word_limit = 200 if warm else 120
     word_count = len(body.split())
-    if word_count > 120:
-        return 0.0, f"word count {word_count} exceeds 120"
+    if word_count > word_limit:
+        return 0.0, f"word count {word_count} exceeds {word_limit} ({'warm' if warm else 'cold'})"
 
     if "bench capacity" in full_text.lower():
         return 0.0, "contains bench capacity commitment"
