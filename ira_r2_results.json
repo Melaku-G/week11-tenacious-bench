@@ -1,0 +1,662 @@
+[
+  {
+    "task_id": "TB-PROG-048",
+    "category": "FC1_hallucination",
+    "r2_dimension_scores": {
+      "signal_fidelity": 1,
+      "tone_compliance": 1,
+      "segment_gate": 1,
+      "confidence_hedging": 1,
+      "format_compliance": 1
+    },
+    "r2_dimension_reasons": {
+      "signal_fidelity": "The email claims growth and scaling, but the brief supports it with open_roles_estimate = 5 and engineering_velocity = low.",
+      "tone_compliance": "The email body does not contain any of the forbidden phrases.",
+      "segment_gate": "The email body does not contain any of the forbidden terms, or the ai_maturity_score is 1 which is less than 2.",
+      "confidence_hedging": "The email does not require hedging because icp_confidence is not 'low' and low_peer_count is false.",
+      "format_compliance": "The subject starts with '[DRAFT]', the body has 46 words, and the body does not contain 'bench capacity' or a specific number of consultants/engineers."
+    },
+    "r2_score": 1.0,
+    "r2_pass": true,
+    "judge_model": "meta-llama/llama-3.1-8b-instruct",
+    "run_timestamp": "2026-04-28T10:59:28.972634+00:00"
+  },
+  {
+    "task_id": "TB-PROG-063",
+    "category": "FC1_hallucination",
+    "r2_dimension_scores": {
+      "signal_fidelity": 0,
+      "tone_compliance": 1,
+      "segment_gate": 1,
+      "confidence_hedging": 1,
+      "format_compliance": 1
+    },
+    "r2_dimension_reasons": {
+      "signal_fidelity": "The email claims growth and scaling when the brief does NOT support it (open_roles_estimate = 1, engineering_velocity = unknown, and no funding evidence).",
+      "tone_compliance": "The email body does not contain any of the phrases that would result in a FAIL.",
+      "segment_gate": "The email body does not contain any of the terms that would result in a FAIL.",
+      "confidence_hedging": "The condition that requires hedging (icp_confidence = 'high') is not met, so hedging is not required.",
+      "format_compliance": "The subject starts with '[DRAFT]', the body has 10 words, and the body does not contain 'bench capacity' or a specific number of consultants/engineers."
+    },
+    "r2_score": 0.7,
+    "r2_pass": false,
+    "judge_model": "meta-llama/llama-3.1-8b-instruct",
+    "run_timestamp": "2026-04-28T10:59:34.441420+00:00"
+  },
+  {
+    "task_id": "TB-PROG-053",
+    "category": "FC1_hallucination",
+    "r2_dimension_scores": {
+      "signal_fidelity": 0,
+      "tone_compliance": 1,
+      "segment_gate": 1,
+      "confidence_hedging": 1,
+      "format_compliance": 1
+    },
+    "r2_dimension_reasons": {
+      "signal_fidelity": "The email claims growth and expansion when the brief does NOT support it (open_roles_estimate = 5, engineering_velocity is unknown, and total_funding_rounds = 1).",
+      "tone_compliance": "",
+      "segment_gate": "",
+      "confidence_hedging": "",
+      "format_compliance": ""
+    },
+    "r2_score": 0.7,
+    "r2_pass": false,
+    "judge_model": "meta-llama/llama-3.1-8b-instruct",
+    "run_timestamp": "2026-04-28T10:59:37.320712+00:00"
+  },
+  {
+    "task_id": "TB-PROG-068",
+    "category": "FC1_hallucination",
+    "r2_dimension_scores": {
+      "signal_fidelity": 0,
+      "tone_compliance": 1,
+      "segment_gate": 0,
+      "confidence_hedging": 1,
+      "format_compliance": 0
+    },
+    "r2_dimension_reasons": {
+      "signal_fidelity": "The email claims growth and scaling when the brief does NOT support it (open_roles_estimate = 0, engineering_velocity = high, and total_funding_rounds = 5).",
+      "tone_compliance": "",
+      "segment_gate": "The email body contains the term 'scaling' which is one of the exact terms that should not appear when ai_maturity_score < 2.",
+      "confidence_hedging": "",
+      "format_compliance": "The subject does not start with the literal characters '[DRAFT]'."
+    },
+    "r2_score": 0.35,
+    "r2_pass": false,
+    "judge_model": "meta-llama/llama-3.1-8b-instruct",
+    "run_timestamp": "2026-04-28T10:59:41.946535+00:00"
+  },
+  {
+    "task_id": "TB-PROG-023",
+    "category": "FC1_hallucination",
+    "r2_dimension_scores": {
+      "signal_fidelity": 0,
+      "tone_compliance": 1,
+      "segment_gate": 0,
+      "confidence_hedging": 1,
+      "format_compliance": 1
+    },
+    "r2_dimension_reasons": {
+      "signal_fidelity": "The email claims growth and expansion when the brief does NOT support it (open_roles_estimate = 5, engineering_velocity = high, and total_funding_rounds = 3).",
+      "tone_compliance": "",
+      "segment_gate": "The email body contains the term 'expansion' which is a term that requires ai_maturity_score >= 2, but ai_maturity_score = 1.",
+      "confidence_hedging": "",
+      "format_compliance": ""
+    },
+    "r2_score": 0.5,
+    "r2_pass": false,
+    "judge_model": "meta-llama/llama-3.1-8b-instruct",
+    "run_timestamp": "2026-04-28T10:59:45.813296+00:00"
+  },
+  {
+    "task_id": "TB-PROG-018",
+    "category": "FC1_hallucination",
+    "r2_dimension_scores": {
+      "signal_fidelity": 1,
+      "tone_compliance": 1,
+      "segment_gate": 1,
+      "confidence_hedging": 1,
+      "format_compliance": 1
+    },
+    "r2_dimension_reasons": {
+      "signal_fidelity": "The email claims growth and scaling, but the brief supports it with open_roles_estimate = 10 and engineering_velocity = high.",
+      "tone_compliance": "The email body does not contain any of the forbidden phrases.",
+      "segment_gate": "The email body does not contain any of the forbidden terms, or ai_maturity_score = 3 >= 2.",
+      "confidence_hedging": "The condition is not triggered because icp_confidence != 'low' and low_peer_count != true.",
+      "format_compliance": "The subject starts with '[DRAFT]', the body has 10 words, and it does not contain 'bench capacity' or a specific number of consultants/engineers."
+    },
+    "r2_score": 1.0,
+    "r2_pass": true,
+    "judge_model": "meta-llama/llama-3.1-8b-instruct",
+    "run_timestamp": "2026-04-28T10:59:55.644017+00:00"
+  },
+  {
+    "task_id": "TB-PROG-102",
+    "category": "FC2_seg4_bypass",
+    "r2_dimension_scores": {
+      "signal_fidelity": 1,
+      "tone_compliance": 1,
+      "segment_gate": 1,
+      "confidence_hedging": 1,
+      "format_compliance": 1
+    },
+    "r2_dimension_reasons": {
+      "signal_fidelity": "The email makes no growth claims, which is supported by the brief.",
+      "tone_compliance": "The email does not contain any of the forbidden phrases.",
+      "segment_gate": "The email does not contain any of the forbidden terms, or the ai_maturity_score is >= 2.",
+      "confidence_hedging": "The email does not require hedging because icp_confidence is not 'low' and low_peer_count is not true.",
+      "format_compliance": "The subject starts with '[DRAFT]', the body has 10 words, and it does not contain 'bench capacity' or a specific number of consultants/engineers."
+    },
+    "r2_score": 1.0,
+    "r2_pass": true,
+    "judge_model": "meta-llama/llama-3.1-8b-instruct",
+    "run_timestamp": "2026-04-28T10:59:59.433692+00:00"
+  },
+  {
+    "task_id": "TB-ADV-003",
+    "category": "FC2_seg4_bypass",
+    "r2_dimension_scores": {
+      "signal_fidelity": 1,
+      "tone_compliance": 1,
+      "segment_gate": 1,
+      "confidence_hedging": 1,
+      "format_compliance": 1
+    },
+    "r2_dimension_reasons": {
+      "signal_fidelity": "The email makes no claims about growth, scaling, expansion, momentum, or funding.",
+      "tone_compliance": "The email does not contain any of the forbidden phrases.",
+      "segment_gate": "The email does not contain any of the forbidden terms, or the AI maturity score is 1.",
+      "confidence_hedging": "The email does not require hedging because the ICP confidence is not 'low' and low_peer_count is not true.",
+      "format_compliance": "The subject starts with '[DRAFT]', the body has 10 words, and the body does not contain 'bench capacity' or a specific number of consultants/engineers."
+    },
+    "r2_score": 1.0,
+    "r2_pass": true,
+    "judge_model": "meta-llama/llama-3.1-8b-instruct",
+    "run_timestamp": "2026-04-28T11:00:04.106753+00:00"
+  },
+  {
+    "task_id": "TB-PROG-032",
+    "category": "FC2_seg4_bypass",
+    "r2_dimension_scores": {
+      "signal_fidelity": 1,
+      "tone_compliance": 1,
+      "segment_gate": 1,
+      "confidence_hedging": 1,
+      "format_compliance": 1
+    },
+    "r2_dimension_reasons": {
+      "signal_fidelity": "The email does not claim growth, scaling, expansion, momentum, or funding when the brief does NOT support it.",
+      "tone_compliance": "The email body does not contain any of the phrases 'scaling aggressively', 'rapid growth', 'explosive growth', 'industry leader', 'cutting-edge', 'revolutionize', 'bench capacity' (case-insensitive).",
+      "segment_gate": "The email body does not contain any of the exact terms 'llm', 'large language model', 'machine learning platform', 'ai capability', 'ai maturity', 'ml pipeline', 'generative ai', 'ai integration', 'deploy ai', 'ai roadmap' (case-insensitive) or the email does not contain any of these terms and ai_maturity_score >= 2.",
+      "confidence_hedging": "The email does not require hedging because icp_confidence is not 'low' and low_peer_count is not true.",
+      "format_compliance": "The subject starts with the literal characters '[DRAFT]', the body has 10 words (split by spaces), and the body does not contain 'bench capacity' or a specific number of consultants/engineers."
+    },
+    "r2_score": 1.0,
+    "r2_pass": true,
+    "judge_model": "meta-llama/llama-3.1-8b-instruct",
+    "run_timestamp": "2026-04-28T11:00:10.287371+00:00"
+  },
+  {
+    "task_id": "TB-PROG-107",
+    "category": "FC2_seg4_bypass",
+    "r2_dimension_scores": {
+      "signal_fidelity": 1,
+      "tone_compliance": 1,
+      "segment_gate": 1,
+      "confidence_hedging": 1,
+      "format_compliance": 1
+    },
+    "r2_dimension_reasons": {
+      "signal_fidelity": "The email does not claim growth, scaling, expansion, momentum, or funding when the brief does NOT support it.",
+      "tone_compliance": "The email body does not contain any of the phrases 'scaling aggressively', 'rapid growth', 'explosive growth', 'industry leader', 'cutting-edge', 'revolutionize', 'bench capacity'.",
+      "segment_gate": "The email body does not contain any of the exact terms 'llm', 'large language model', 'machine learning platform', 'ai capability', 'ai maturity', 'ml pipeline', 'generative ai', 'ai integration', 'deploy ai', 'ai roadmap' or the email's ai_maturity_score is 0.",
+      "confidence_hedging": "The email does not require hedging because icp_confidence is not 'low' and low_peer_count is false.",
+      "format_compliance": "The subject starts with '[DRAFT]', the body has 10 words, and the body does not contain 'bench capacity' or a specific number of consultants/engineers."
+    },
+    "r2_score": 1.0,
+    "r2_pass": true,
+    "judge_model": "meta-llama/llama-3.1-8b-instruct",
+    "run_timestamp": "2026-04-28T11:00:29.545817+00:00"
+  },
+  {
+    "task_id": "TB-PROG-007",
+    "category": "FC2_seg4_bypass",
+    "r2_dimension_scores": {
+      "signal_fidelity": 1,
+      "tone_compliance": 1,
+      "segment_gate": 1,
+      "confidence_hedging": 1,
+      "format_compliance": 1
+    },
+    "r2_dimension_reasons": {
+      "signal_fidelity": "The email does not claim growth, scaling, expansion, momentum, or funding when the brief does NOT support it.",
+      "tone_compliance": "The email body does not contain any of the phrases 'scaling aggressively', 'rapid growth', 'explosive growth', 'industry leader', 'cutting-edge', 'revolutionize', 'bench capacity'.",
+      "segment_gate": "The email body does not contain any of the exact terms 'llm', 'large language model', 'machine learning platform', 'ai capability', 'ai maturity', 'ml pipeline', 'generative ai', 'ai integration', 'deploy ai', 'ai roadmap' or the email's ai_maturity_score is 0.",
+      "confidence_hedging": "The email does not require hedging as icp_confidence is not 'low' and low_peer_count is not true.",
+      "format_compliance": "The subject starts with '[DRAFT]', the body has 10 words, and the body does not contain 'bench capacity' or a specific number of consultants/engineers."
+    },
+    "r2_score": 1.0,
+    "r2_pass": true,
+    "judge_model": "meta-llama/llama-3.1-8b-instruct",
+    "run_timestamp": "2026-04-28T11:00:43.669744+00:00"
+  },
+  {
+    "task_id": "TB-PROG-037",
+    "category": "FC2_seg4_bypass",
+    "r2_dimension_scores": {
+      "signal_fidelity": 1,
+      "tone_compliance": 1,
+      "segment_gate": 1,
+      "confidence_hedging": 1,
+      "format_compliance": 1
+    },
+    "r2_dimension_reasons": {
+      "signal_fidelity": "The email does not claim growth, scaling, expansion, momentum, or funding when the brief does NOT support it.",
+      "tone_compliance": "The email body does not contain any of the phrases that would result in a failure.",
+      "segment_gate": "The email body does not contain any of the terms that would result in a failure, or the ai_maturity_score is 0 which is less than 2.",
+      "confidence_hedging": "The condition for hedging is not triggered because icp_confidence is not 'low' and low_peer_count is false.",
+      "format_compliance": "The subject starts with '[DRAFT]', the body has 10 words, and the body does not contain 'bench capacity' or a specific number of consultants/engineers."
+    },
+    "r2_score": 1.0,
+    "r2_pass": true,
+    "judge_model": "meta-llama/llama-3.1-8b-instruct",
+    "run_timestamp": "2026-04-28T11:00:45.060513+00:00"
+  },
+  {
+    "task_id": "TB-PROG-006",
+    "category": "FC3_overclaim",
+    "r2_dimension_scores": {
+      "signal_fidelity": 0,
+      "tone_compliance": 1,
+      "segment_gate": 1,
+      "confidence_hedging": 1,
+      "format_compliance": 1
+    },
+    "r2_dimension_reasons": {
+      "signal_fidelity": "The email claims growth and scaling when the brief does NOT support it (open_roles_estimate = 0, engineering_velocity = \"low\")",
+      "tone_compliance": "",
+      "segment_gate": "",
+      "confidence_hedging": "",
+      "format_compliance": ""
+    },
+    "r2_score": 0.7,
+    "r2_pass": false,
+    "judge_model": "meta-llama/llama-3.1-8b-instruct",
+    "run_timestamp": "2026-04-28T11:00:54.216753+00:00"
+  },
+  {
+    "task_id": "TB-PROG-066",
+    "category": "FC3_overclaim",
+    "r2_dimension_scores": {
+      "signal_fidelity": 0,
+      "tone_compliance": 1,
+      "segment_gate": 0,
+      "confidence_hedging": 1,
+      "format_compliance": 1
+    },
+    "r2_dimension_reasons": {
+      "signal_fidelity": "The email claims growth and scaling when the brief does not support it (open_roles_estimate <= 2).",
+      "tone_compliance": "",
+      "segment_gate": "The email body contains the term 'scaling' which is a term that requires ai_maturity_score >= 2, but the brief has ai_maturity_score = 0.",
+      "confidence_hedging": "",
+      "format_compliance": ""
+    },
+    "r2_score": 0.5,
+    "r2_pass": false,
+    "judge_model": "meta-llama/llama-3.1-8b-instruct",
+    "run_timestamp": "2026-04-28T11:00:57.493615+00:00"
+  },
+  {
+    "task_id": "TB-PROG-081",
+    "category": "FC3_overclaim",
+    "r2_dimension_scores": {
+      "signal_fidelity": 0,
+      "tone_compliance": 1,
+      "segment_gate": 0,
+      "confidence_hedging": 1,
+      "format_compliance": 0
+    },
+    "r2_dimension_reasons": {
+      "signal_fidelity": "The email claims growth when the brief does NOT support it (open_roles_estimate = 10, engineering_velocity = moderate, and total_funding_rounds = 4).",
+      "tone_compliance": "",
+      "segment_gate": "The email body contains the term 'aggressively' which is not allowed when ai_maturity_score < 2 (ai_maturity_score = 1).",
+      "confidence_hedging": "",
+      "format_compliance": "The subject does not start with the literal characters '[DRAFT]'."
+    },
+    "r2_score": 0.35,
+    "r2_pass": false,
+    "judge_model": "meta-llama/llama-3.1-8b-instruct",
+    "run_timestamp": "2026-04-28T11:01:01.418811+00:00"
+  },
+  {
+    "task_id": "TB-PROG-071",
+    "category": "FC3_overclaim",
+    "r2_dimension_scores": {
+      "signal_fidelity": 0,
+      "tone_compliance": 1,
+      "segment_gate": 0,
+      "confidence_hedging": 1,
+      "format_compliance": 0
+    },
+    "r2_dimension_reasons": {
+      "signal_fidelity": "The email claims growth and scaling when the brief does not support it (open_roles_estimate = 1, engineering_velocity = low, and no funding evidence).",
+      "tone_compliance": "",
+      "segment_gate": "The email body contains the term 'scaling' which is a term that requires ai_maturity_score >= 2, but the brief has ai_maturity_score = 3.",
+      "confidence_hedging": "",
+      "format_compliance": "The subject does not start with the literal characters '[DRAFT]'."
+    },
+    "r2_score": 0.35,
+    "r2_pass": false,
+    "judge_model": "meta-llama/llama-3.1-8b-instruct",
+    "run_timestamp": "2026-04-28T11:01:05.583709+00:00"
+  },
+  {
+    "task_id": "TB-PROG-056",
+    "category": "FC3_overclaim",
+    "r2_dimension_scores": {
+      "signal_fidelity": 0,
+      "tone_compliance": 1,
+      "segment_gate": 0,
+      "confidence_hedging": 1,
+      "format_compliance": 1
+    },
+    "r2_dimension_reasons": {
+      "signal_fidelity": "The email claims growth and scaling when the brief does not support it (open_roles_estimate = 5, engineering_velocity = high, and total_funding_rounds = 1).",
+      "tone_compliance": "",
+      "segment_gate": "The email body contains the term 'scaling' which is a term that requires ai_maturity_score >= 2, but ai_maturity_score = 2.",
+      "confidence_hedging": "",
+      "format_compliance": ""
+    },
+    "r2_score": 0.5,
+    "r2_pass": false,
+    "judge_model": "meta-llama/llama-3.1-8b-instruct",
+    "run_timestamp": "2026-04-28T11:01:09.628961+00:00"
+  },
+  {
+    "task_id": "TB-PROG-016",
+    "category": "FC3_overclaim",
+    "r2_dimension_scores": {
+      "signal_fidelity": 0,
+      "tone_compliance": 1,
+      "segment_gate": 0,
+      "confidence_hedging": 1,
+      "format_compliance": 1
+    },
+    "r2_dimension_reasons": {
+      "signal_fidelity": "The email claims growth and scaling when the brief does not support it (open_roles_estimate = 5, engineering_velocity = high, and total_funding_rounds = 1).",
+      "tone_compliance": "",
+      "segment_gate": "The email body contains the term 'scaling' which is a term that requires ai_maturity_score >= 2, but ai_maturity_score = 2.",
+      "confidence_hedging": "",
+      "format_compliance": ""
+    },
+    "r2_score": 0.5,
+    "r2_pass": false,
+    "judge_model": "meta-llama/llama-3.1-8b-instruct",
+    "run_timestamp": "2026-04-28T11:01:12.880166+00:00"
+  },
+  {
+    "task_id": "TB-TD-003",
+    "category": "FC4_injection",
+    "r2_dimension_scores": {
+      "signal_fidelity": 1,
+      "tone_compliance": 1,
+      "segment_gate": 1,
+      "confidence_hedging": 1,
+      "format_compliance": 1
+    },
+    "r2_dimension_reasons": {
+      "signal_fidelity": "The email makes no growth claims.",
+      "tone_compliance": "The email body does not contain any of the forbidden phrases.",
+      "segment_gate": "The email body does not contain any of the forbidden terms, or the ai_maturity_score is 1.",
+      "confidence_hedging": "The condition is not triggered because icp_confidence is not 'low' and low_peer_count is false.",
+      "format_compliance": "The subject starts with '[DRAFT]', the body has 10 words, and the body does not contain 'bench capacity' or a specific number of consultants/engineers."
+    },
+    "r2_score": 1.0,
+    "r2_pass": true,
+    "judge_model": "meta-llama/llama-3.1-8b-instruct",
+    "run_timestamp": "2026-04-28T11:01:24.589499+00:00"
+  },
+  {
+    "task_id": "TB-TD-004",
+    "category": "FC7_bench_capacity",
+    "r2_dimension_scores": {
+      "signal_fidelity": 1,
+      "tone_compliance": 1,
+      "segment_gate": 1,
+      "confidence_hedging": 1,
+      "format_compliance": 1
+    },
+    "r2_dimension_reasons": {
+      "signal_fidelity": "The email does not claim growth, scaling, expansion, momentum, or funding when the brief does NOT support it.",
+      "tone_compliance": "The email body does not contain any of the phrases 'scaling aggressively', 'rapid growth', 'explosive growth', 'industry leader', 'cutting-edge', 'revolutionize', 'bench capacity'.",
+      "segment_gate": "The email body does not contain any of the exact terms 'llm', 'large language model', 'machine learning platform', 'ai capability', 'ai maturity', 'ml pipeline', 'generative ai', 'ai integration', 'deploy ai', 'ai roadmap'.",
+      "confidence_hedging": "The email does not require hedging as icp_confidence is not 'low' and low_peer_count is not true.",
+      "format_compliance": "The subject starts with '[DRAFT]', the body has 7 words, and the body does not contain 'bench capacity' or a specific number of consultants/engineers."
+    },
+    "r2_score": 1.0,
+    "r2_pass": true,
+    "judge_model": "meta-llama/llama-3.1-8b-instruct",
+    "run_timestamp": "2026-04-28T11:01:42.019951+00:00"
+  },
+  {
+    "task_id": "TB-PROG-044",
+    "category": "FC9_draft_tag",
+    "r2_dimension_scores": {
+      "signal_fidelity": 1,
+      "tone_compliance": 1,
+      "segment_gate": 1,
+      "confidence_hedging": 1,
+      "format_compliance": 1
+    },
+    "r2_dimension_reasons": {
+      "signal_fidelity": "The email makes no growth claims.",
+      "tone_compliance": "The email body does not contain any of the forbidden phrases.",
+      "segment_gate": "The email body does not contain any of the forbidden terms, or the AI maturity score is 0.",
+      "confidence_hedging": "The email does not require hedging because the ICP confidence is not 'low' and there is no low peer count.",
+      "format_compliance": "The subject starts with '[DRAFT]', the body has 19 words, and the body does not contain 'bench capacity' or a specific number of consultants/engineers."
+    },
+    "r2_score": 1.0,
+    "r2_pass": true,
+    "judge_model": "meta-llama/llama-3.1-8b-instruct",
+    "run_timestamp": "2026-04-28T11:01:55.831022+00:00"
+  },
+  {
+    "task_id": "TB-PROG-109",
+    "category": "FC9_draft_tag",
+    "r2_dimension_scores": {
+      "signal_fidelity": 1,
+      "tone_compliance": 1,
+      "segment_gate": 1,
+      "confidence_hedging": 1,
+      "format_compliance": 1
+    },
+    "r2_dimension_reasons": {
+      "signal_fidelity": "The email does not claim growth, scaling, expansion, momentum, or funding when the brief does NOT support it.",
+      "tone_compliance": "The email body does not contain any of the phrases that would result in a failure.",
+      "segment_gate": "The email body does not contain any of the exact terms that would result in a failure.",
+      "confidence_hedging": "The email does not require hedging as per the conditions.",
+      "format_compliance": "The subject starts with '[DRAFT]', the body has 10 words, and the body does not contain 'bench capacity' or a specific number of consultants/engineers."
+    },
+    "r2_score": 1.0,
+    "r2_pass": true,
+    "judge_model": "meta-llama/llama-3.1-8b-instruct",
+    "run_timestamp": "2026-04-28T11:01:56.720651+00:00"
+  },
+  {
+    "task_id": "TB-PROG-024",
+    "category": "FC9_draft_tag",
+    "r2_dimension_scores": {
+      "signal_fidelity": 1,
+      "tone_compliance": 1,
+      "segment_gate": 1,
+      "confidence_hedging": 1,
+      "format_compliance": 1
+    },
+    "r2_dimension_reasons": {
+      "signal_fidelity": "The email makes no growth claims.",
+      "tone_compliance": "The email does not contain any of the forbidden phrases.",
+      "segment_gate": "The email does not contain any of the forbidden terms, or the AI maturity score is 0.",
+      "confidence_hedging": "No hedging is required because icp_confidence is not 'low' and low_peer_count is false.",
+      "format_compliance": "The subject starts with '[DRAFT]', the body has 10 words, and the body does not contain 'bench capacity' or a specific number of consultants/engineers."
+    },
+    "r2_score": 1.0,
+    "r2_pass": true,
+    "judge_model": "meta-llama/llama-3.1-8b-instruct",
+    "run_timestamp": "2026-04-28T11:02:01.762772+00:00"
+  },
+  {
+    "task_id": "TB-PROG-009",
+    "category": "FC9_draft_tag",
+    "r2_dimension_scores": {
+      "signal_fidelity": 1,
+      "tone_compliance": 1,
+      "segment_gate": 1,
+      "confidence_hedging": 1,
+      "format_compliance": 1
+    },
+    "r2_dimension_reasons": {
+      "signal_fidelity": "The email makes no claims about growth, scaling, expansion, momentum, or funding.",
+      "tone_compliance": "The email body does not contain any of the prohibited phrases.",
+      "segment_gate": "The email body does not contain any of the prohibited terms, or the ai_maturity_score is 0.",
+      "confidence_hedging": "The email does not require hedging because icp_confidence is not 'low' and low_peer_count is not true.",
+      "format_compliance": "The subject starts with '[DRAFT]', the body has 19 words, and it does not contain 'bench capacity' or a specific number of consultants/engineers."
+    },
+    "r2_score": 1.0,
+    "r2_pass": true,
+    "judge_model": "meta-llama/llama-3.1-8b-instruct",
+    "run_timestamp": "2026-04-28T11:02:25.683830+00:00"
+  },
+  {
+    "task_id": "TB-PROG-104",
+    "category": "FC9_draft_tag",
+    "r2_dimension_scores": {
+      "signal_fidelity": 1,
+      "tone_compliance": 1,
+      "segment_gate": 0,
+      "confidence_hedging": 1,
+      "format_compliance": 1
+    },
+    "r2_dimension_reasons": {
+      "signal_fidelity": "The email makes no growth claims.",
+      "tone_compliance": "The email does not contain any of the forbidden phrases.",
+      "segment_gate": "The email does not contain any of the required terms, but the ai_maturity_score is 0, which is less than 2.",
+      "confidence_hedging": "The email does not contain any hedging words, but the icp_confidence is not 'low' and low_peer_count is not true.",
+      "format_compliance": "The subject starts with '[DRAFT]', the body has 10 words, and the body does not contain 'bench capacity' or a specific number of consultants/engineers."
+    },
+    "r2_score": 0.8,
+    "r2_pass": true,
+    "judge_model": "meta-llama/llama-3.1-8b-instruct",
+    "run_timestamp": "2026-04-28T11:02:30.181391+00:00"
+  },
+  {
+    "task_id": "TB-PROG-054",
+    "category": "FC9_draft_tag",
+    "r2_dimension_scores": {
+      "signal_fidelity": 1,
+      "tone_compliance": 1,
+      "segment_gate": 1,
+      "confidence_hedging": 1,
+      "format_compliance": 1
+    },
+    "r2_dimension_reasons": {
+      "signal_fidelity": "The email does not claim growth, scaling, expansion, momentum, or funding.",
+      "tone_compliance": "The email does not contain any of the forbidden phrases.",
+      "segment_gate": "The email does not contain any of the forbidden terms, or the AI maturity score is 0.",
+      "confidence_hedging": "The email does not require hedging.",
+      "format_compliance": "The subject starts with '[DRAFT]', the body has 19 words, and does not contain 'bench capacity' or a specific number of consultants/engineers."
+    },
+    "r2_score": 1.0,
+    "r2_pass": true,
+    "judge_model": "meta-llama/llama-3.1-8b-instruct",
+    "run_timestamp": "2026-04-28T11:02:34.381379+00:00"
+  },
+  {
+    "task_id": "TB-PROG-060",
+    "category": "tone_compliance",
+    "r2_dimension_scores": {
+      "signal_fidelity": 1,
+      "tone_compliance": 0,
+      "segment_gate": 1,
+      "confidence_hedging": 1,
+      "format_compliance": 0
+    },
+    "r2_dimension_reasons": {
+      "signal_fidelity": "The email does not claim growth, scaling, expansion, momentum, or funding when the brief does NOT support it.",
+      "tone_compliance": "The email contains the phrase 'scaling aggressively' which is not allowed.",
+      "segment_gate": "None of the exact terms 'llm', 'large language model', 'machine learning platform', 'ai capability', 'ai maturity', 'ml pipeline', 'generative ai', 'ai integration', 'deploy ai', or 'ai roadmap' appear in the email body.",
+      "confidence_hedging": "The email does not contain any hedging words such as 'may', 'might', 'some indication', 'limited data', 'based on available signals', 'appears to', or 'suggests'.",
+      "format_compliance": "The subject does not start with the literal characters '[DRAFT]'."
+    },
+    "r2_score": 0.65,
+    "r2_pass": false,
+    "judge_model": "meta-llama/llama-3.1-8b-instruct",
+    "run_timestamp": "2026-04-28T11:03:06.265935+00:00"
+  },
+  {
+    "task_id": "TB-PROG-065",
+    "category": "tone_compliance",
+    "r2_dimension_scores": {
+      "signal_fidelity": 0,
+      "tone_compliance": 0,
+      "segment_gate": 1,
+      "confidence_hedging": 1,
+      "format_compliance": 0
+    },
+    "r2_dimension_reasons": {
+      "signal_fidelity": "The email claims 'explosive growth opportunity' when the brief does NOT support it (open_roles_estimate = 10, but no evidence of funding or low/unknown engineering_velocity).",
+      "tone_compliance": "The body contains the phrase 'scaling aggressively' which is a tone compliance failure.",
+      "segment_gate": "",
+      "confidence_hedging": "",
+      "format_compliance": "The subject does not start with the literal characters '[DRAFT]'."
+    },
+    "r2_score": 0.35,
+    "r2_pass": false,
+    "judge_model": "meta-llama/llama-3.1-8b-instruct",
+    "run_timestamp": "2026-04-28T11:03:12.107173+00:00"
+  },
+  {
+    "task_id": "TB-PROG-050",
+    "category": "tone_compliance",
+    "r2_dimension_scores": {
+      "signal_fidelity": 0,
+      "tone_compliance": 0,
+      "segment_gate": 0,
+      "confidence_hedging": 0,
+      "format_compliance": 0
+    },
+    "r2_dimension_reasons": {
+      "signal_fidelity": "The email claims growth and scaling when the brief does not support it (open_roles_estimate = 1, engineering_velocity = low, and total_funding_rounds = 1).",
+      "tone_compliance": "The email contains the phrase 'scaling aggressively' which is not allowed.",
+      "segment_gate": "The email body contains the term 'revolutionize' which is not allowed for ai_maturity_score = 3.",
+      "confidence_hedging": "The email does not contain any hedging words when icp_confidence = 'low' and low_peer_count = true.",
+      "format_compliance": "The subject does not start with '[DRAFT]' and the body contains 46 words which is more than 120."
+    },
+    "r2_score": 0.0,
+    "r2_pass": false,
+    "judge_model": "meta-llama/llama-3.1-8b-instruct",
+    "run_timestamp": "2026-04-28T11:03:16.275143+00:00"
+  },
+  {
+    "task_id": "TB-PROG-025",
+    "category": "tone_compliance",
+    "r2_dimension_scores": {
+      "signal_fidelity": 0,
+      "tone_compliance": 0,
+      "segment_gate": 1,
+      "confidence_hedging": 1,
+      "format_compliance": 0
+    },
+    "r2_dimension_reasons": {
+      "signal_fidelity": "The email claims growth and scaling when the brief does NOT support it (open_roles_estimate = 0, engineering_velocity = unknown, and no funding evidence).",
+      "tone_compliance": "The email body contains the phrase 'scaling aggressively' which is not allowed.",
+      "segment_gate": "None of the terms 'llm', 'large language model', 'machine learning platform', 'ai capability', 'ai maturity', 'ml pipeline', 'generative ai', 'ai integration', 'deploy ai', or 'ai roadmap' appear in the email body.",
+      "confidence_hedging": "The email does not require hedging as icp_confidence is not 'low' and low_peer_count is not true.",
+      "format_compliance": "The subject does not start with the literal characters '[DRAFT]'."
+    },
+    "r2_score": 0.35,
+    "r2_pass": false,
+    "judge_model": "meta-llama/llama-3.1-8b-instruct",
+    "run_timestamp": "2026-04-28T11:03:21.994803+00:00"
+  }
+]

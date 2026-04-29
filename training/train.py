@@ -79,8 +79,18 @@ def format_output(task: dict) -> str:
     return f"Subject: {out['email_subject']}\n\n{out['email_body']}"
 
 
+# Per-source sampling multipliers (Magpie memo_07: smaller generators compress difficulty;
+# hand-authored/trace-derived cover hard edge cases disproportionately).
+SOURCE_WEIGHTS: dict[str, int] = {
+    "hand_authored":  4,
+    "trace_derived":  2,
+    "programmatic":   1,
+    "synthesis":      1,  # reduced; DeepSeek 7B compresses difficulty distribution
+}
+
+
 def load_positive_pairs(jsonl_path: Path, min_score: float = 0.8) -> list[dict]:
-    """Load tasks with score >= min_score as positive training pairs."""
+    """Load tasks with score >= min_score; apply per-source-mode oversampling weights."""
     pairs = []
     for line in jsonl_path.read_text(encoding="utf-8").splitlines():
         if not line.strip():
@@ -88,8 +98,12 @@ def load_positive_pairs(jsonl_path: Path, min_score: float = 0.8) -> list[dict]:
         task = json.loads(line)
         score = task.get("score")
         if score is not None and score >= min_score:
-            pairs.append(task)
-    print(f"Loaded {len(pairs)} positive pairs (score >= {min_score}) from {jsonl_path}")
+            source = task.get("source_mode", "programmatic")
+            weight = SOURCE_WEIGHTS.get(source, 1)
+            pairs.extend([task] * weight)
+    raw = sum(1 for line in jsonl_path.read_text(encoding="utf-8").splitlines()
+              if line.strip() and json.loads(line).get("score", 0) >= min_score)
+    print(f"Loaded {raw} positive pairs (score >= {min_score}) → {len(pairs)} after source weighting")
     return pairs
 
 

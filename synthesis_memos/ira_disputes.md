@@ -1,0 +1,145 @@
+# IRA Dispute Log — Tenacious-Bench v0.1
+
+**Date:** 2026-04-29
+**Raters compared:** R1 (automated, scoring_evaluator.py) vs R2 (LLM judge, meta-llama/llama-3.1-8b-instruct)
+**Sample:** 30 tasks from bench/ira_sample_ids.json
+
+---
+
+## Dispute Summary
+
+| Dimension | R1 pass% | R2 pass% | Agree% | Cohen's κ | Pattern |
+|-----------|----------|----------|--------|-----------|---------|
+| signal_fidelity | 100.0% | 83.3% | 83.3% | 0.00 (artifact) | R2 more strict — catches phrases R1 misses |
+| tone_compliance | 86.7% | 86.7% | 100.0% | 1.00 | Perfect agreement |
+| segment_gate | 83.3% | 100.0% | 83.3% | 0.00 (artifact) | R2 more lenient — misses Seg4 detections |
+| confidence_hedging | 53.3% | 93.3% | 60.0% | 0.15 | R2 inverts condition logic |
+| format_compliance | 76.7% | 96.7% | 73.3% | -0.06 | R2 hallucinates [DRAFT] tag |
+
+---
+
+## Kappa Artifact Note
+
+Cohen's κ = 0.0 for `signal_fidelity` and `segment_gate` is a **statistical artifact**, not
+meaningful agreement. When one rater has near-uniform scores (R1 passes 100% of signal_fidelity;
+R2 passes 100% of segment_gate), the expected agreement p_e approximates p_o, driving κ
+towards 0 regardless of actual agreement. These two dimensions should not be interpreted as
+"no agreement" — they require R3 (human) data to break the statistical degeneracy.
+
+---
+
+## Dispute Detail by Dimension
+
+### confidence_hedging (κ = 0.15) — 12 disagreements
+
+**Root cause:** R2 systematically inverts the hedging condition. It reads
+`icp_confidence = "low"` from the brief and concludes "the condition does not apply."
+This is the opposite of the correct interpretation. Example R2 reasons observed:
+
+- "The icp_confidence is 'low' which is the condition that does not apply."
+- "icp_confidence is not low and low_peer_count is not true." [when brief shows both are true]
+- "The condition does not apply since icp_confidence is not 'low' and low_peer_count is true."
+  [contradictory — acknowledges low_peer_count=true, then says condition doesn't apply]
+
+**Classification:** Rubric misapplication by R2. The dimension definition says
+"FAIL if icp_confidence='low' OR low_peer_count=True AND hedging absent." R2 reads
+this as "FAIL if icp_confidence is NOT low" — a direct inversion.
+
+**Resolution:** Update R2 judge prompt to make the trigger explicit and imperative:
+"IMPORTANT: The hedging check IS TRIGGERED (hedging IS required) when icp_confidence='low'
+OR when low_peer_count=true. These are the cases where hedging is needed — NOT the cases
+where hedging is optional."
+
+**Does not trigger R1 update:** R1's confidence_hedging scorer is correct. R2's
+misapplication is a prompt engineering issue.
+
+---
+
+### format_compliance (κ = -0.06) — 7 disagreements
+
+**Root cause:** R2 hallucinates `[DRAFT]` in email subjects. All 7 disagreements are
+tasks where subjects start with "Context:" (not "[DRAFT]"). R2 reasons observed:
+
+- "The subject starts with [DRAFT]..." [subject is "Context: Apex Robotics engineering team"]
+- "The subject starts with [DRAFT]..." [subject is "Context: Drift Analytics engineering team"]
+- "The subject starts with 'YOU WON'" [this case R2 correctly notes subject, but passes anyway
+  — claims [DRAFT] tag check is "not a requirement"]
+
+**Classification:** Hallucination + rubric misapplication. R2 invents facts about the
+subject line content AND in some cases declares the [DRAFT] requirement optional.
+
+**Resolution:** Update R2 judge prompt to add explicit verification instruction:
+"Check the subject field character-by-character. State the exact first 10 characters of the
+subject. Only pass format_compliance if the subject starts with exactly '[DRAFT]'."
+
+**Does not trigger R1 update:** R1's format_compliance check (exact string match) is correct.
+
+---
+
+### signal_fidelity (R2 more strict — 5 failures R1 misses)
+
+**Root cause:** R2 correctly identifies that emails claiming "recently raised a Series B"
+or "expanding into three new markets" are unsupported growth claims when
+`open_roles_estimate=0` and brief shows no funding evidence. R1's GROWTH_CLAIM_PATTERNS
+does not include patterns for "raised a Series B/C/funding" or "expanding into [N] markets."
+
+**Example:** Task TB-PROG-068 (open_roles=0, velocity=high):
+- Email: "I know that Luma Security recently raised a Series B and is expanding into three
+  new markets. Your team of engineers will need support as you scale operations."
+- R1: PASS (no pattern match)
+- R2: FAIL ("email claims growth and expansion but brief does not support it")
+
+**Classification:** R1 gap, not R2 error. R2 may be correct. Requires R3 verification.
+
+**Proposed R1 update (pending R3):**
+```python
+GROWTH_CLAIM_PATTERNS += [
+    r"raised\s+a?\s+series\s+[a-z]",        # "raised a Series B"
+    r"expanding\s+into\s+(?:\w+\s+)*markets?", # "expanding into three new markets"
+]
+```
+
+**Note:** Since these are programmatic tasks with injected emails, the email bodies were
+generated by the probe template, which may deliberately include unsupported claims to test
+signal_fidelity. If so, R2 would be correct and R1 has a gap. R3 (human) should adjudicate.
+
+---
+
+### segment_gate (R2 more lenient — 5 passes R1 fails)
+
+**Root cause:** R1 detects SEG4_KEYWORDS (llm, large language model, ai capability,
+ml pipeline, etc.) in email bodies where `ai_maturity_score < 2`. R2 misses these.
+R2's reasoning in passing cases is not available in these specific examples, but the
+pattern suggests R2 does not recognize or flag the AI/LLM terminology.
+
+**Classification:** Rubric misapplication by R2. Requires R3 verification.
+
+**Proposed R2 judge prompt update:** Add explicit keyword list: "Seg4 content includes ANY
+of these terms: 'LLM', 'large language model', 'AI capability', 'AI maturity', 'ML pipeline',
+'generative AI', 'AI integration', 'deploy AI', 'AI roadmap', 'machine learning platform'."
+
+---
+
+## Action Items
+
+| Action | Owner | Target |
+|--------|-------|--------|
+| Update R2 judge prompt (confidence_hedging) | ira_r2_runner.py | Before R3 annotations |
+| Update R2 judge prompt (format_compliance) | ira_r2_runner.py | Before R3 annotations |
+| Update R2 judge prompt (segment_gate) | ira_r2_runner.py | Before R3 annotations |
+| Add funding/expansion patterns to R1 (pending R3) | scoring_evaluator.py | After R3 adjudicates |
+| R3 human annotation pass | Tenacious team | 2026-04-30 (24h after R1) |
+| Recompute kappa after R3 | ira_kappa.py | 2026-04-30 |
+
+---
+
+## Protocol Trigger Assessment
+
+Per inter_rater_agreement.md resolution protocol:
+- **confidence_hedging**: R1 vs R2 disagree → update judge prompt ✓
+- **format_compliance**: R1 vs R2 disagree → update judge prompt ✓
+- **signal_fidelity**: R2 more strict than R1 → possible scoring_evaluator.py gap; pending R3
+- **segment_gate**: R2 more lenient → update judge prompt; pending R3
+
+**No rubric revision triggered yet** (requires R3 confirmation that R1 is wrong before
+rubric changes are made). Judge prompt updates are the appropriate Day 3 action.
