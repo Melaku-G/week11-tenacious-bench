@@ -17,3 +17,6 @@ training/checkpoints/
 
 # Cost log (keep local only)
 cost_log.csv
+
+interim_report.pdf
+interim_report.doc
