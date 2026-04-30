@@ -57,8 +57,16 @@ Rules:
 - If icp_confidence=low or low_peer_count=True, use hedging language
 - If ai_maturity_score < 2, do NOT pitch AI/LLM capabilities
 - If layoff_event=True, do NOT use upbeat or enthusiastic language
-- NEVER use banned phrases: scaling aggressively, rapid growth, explosive growth,
-  industry leader, cutting-edge, revolutionize, bench capacity
+- NEVER use any of these banned phrases (Style Guide v2 full list):
+  scaling aggressively, rapid growth, explosive growth, industry leader,
+  cutting-edge, revolutionize, world-class, world class, top talent, a-players,
+  rockstar, ninja, wizard, skyrocket, supercharge,
+  i hope this email finds you well, just following up, circling back,
+  quick question, quick chat, synergize, synergy, leverage, ecosystem,
+  game-changer, game changer, disruptor, paradigm shift,
+  you'll regret, don't miss out, do not miss out, per my last
+- NEVER use the word "bench" when writing to a prospect
+- NEVER make bench capacity commitments ("we have X engineers ready")
 """
 
 

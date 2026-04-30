@@ -80,11 +80,14 @@ GROWTH_CLAIM_PATTERNS = [
     r"scal\w+\s+(?:your\s+)?(?:engineering\s+)?team",
     r"grow\w+\s+(?:your\s+)?(?:headcount|team|engineering)",
     r"rapid(?:ly)?\s+(?:growing|expanding|hiring)",
-    r"significant\s+(?:growth|expansion|hiring)",
+    r"significant\s+(?:growth|expansion|hiring|pace|rate)",  # added: "significant pace/rate"
+    r"growing\s+at\s+a\s+significant",                       # "growing at a significant pace"
     r"building\s+out\s+(?:your\s+)?(?:engineering|tech|ai)",
     r"aggressively\s+hir\w+",
     r"\bwe have \d+\s+engineers?\b",   # bench capacity commitment
     r"\bengineers?\s+(?:available|ready to deploy|on bench)\b",
+    r"raised\s+a?\s*series\s+[a-zA-Z]",   # fabricated funding round on any low-signal brief
+    r"expanding\s+into\s+\w+\s+new\s+market",  # "expanding into three new markets"
 ]
 
 # Stronger growth claims: only fired when hard negative signal (layoff=True OR open_roles=0).
@@ -93,7 +96,7 @@ GROWTH_CLAIM_PATTERNS = [
 STRONG_NEGATIVE_GROWTH_PATTERNS = [
     r"scal\w+\s+(?:its\s+|your\s+)?(?:engineering\s+)?(?:team|operations)",  # "scale operations"
     r"scal\w+\s+aggressively",             # "scaling aggressively" as growth claim (IRA R3)
-    r"raised\s+a?\s*series\s+[a-zA-Z]",   # "raised a Series B/C"
+    r"raised\s+a?\s*series\s+[a-zA-Z]",   # "raised a Series B/C" (also in GCP for low_signal)
     r"expanding\s+into\s+\w",             # "expanding into three new markets"
 ]
 
