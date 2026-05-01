@@ -1,0 +1,25 @@
+Tenacious-Bench v0.1 — SFT Training Run Log
+=============================================
+Date: 2026-05-01
+Model: unsloth/Qwen2.5-1.5B-Instruct
+LoRA rank: 16
+LoRA alpha: 32
+Max seq length: 1024
+Batch size: 4
+Gradient accumulation: 4
+Effective batch size: 16
+Learning rate: 2e-4
+LR scheduler: cosine
+Warmup steps: 10
+Max steps: 100
+Epochs: 2
+Training examples: 1016
+Trainable parameters: 18,464,768 / 1,562,179,072 (1.18%)
+Wall time: ~6 minutes (T4 GPU)
+
+Loss Curve:
+Step 25:  1.7114
+Step 50:  0.2152
+Step 75:  0.1434
+Step 100: 0.1148
+Final training loss: 0.5462

@@ -1,0 +1,42 @@
+{
+  "model": "Qwen2.5-1.5B-Instruct + LoRA rank 16 alpha 32",
+  "training_examples": 1016,
+  "training_steps": 100,
+  "held_out_tasks": 62,
+  "baseline_mean": 0.6976,
+  "base_guarded_mean": 0.7992,
+  "adapter_mean": 0.8863,
+  "delta_a": {
+    "value": 0.1887,
+    "ci_95": [
+      0.1548,
+      0.2242
+    ],
+    "p_value": 0.0,
+    "significant": true
+  },
+  "delta_b": {
+    "value": 0.0871,
+    "ci_95": [
+      0.0573,
+      0.1177
+    ],
+    "p_value": 0.0,
+    "significant": true,
+    "interpretation": "Training beat prompt-only guarded baseline"
+  },
+  "delta_c": {
+    "value": 0.1863,
+    "tau2bench_baseline": 0.7,
+    "note": "Reusing Week 10 tau2-bench score, no re-run"
+  },
+  "cost_pareto": {
+    "adapter_latency_s": 2.98,
+    "base_latency_s": 7.17,
+    "speedup": 2.41,
+    "verdict": "Adapter is 2.4x faster AND +18.9% more accurate \u2014 Pareto dominates"
+  },
+  "tasks_improved": 54,
+  "tasks_same": 8,
+  "tasks_degraded": 0
+}

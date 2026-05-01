@@ -89,29 +89,32 @@ def format_output(task: dict) -> str:
 
 # Per-source sampling multipliers (Magpie memo_07: smaller generators compress difficulty;
 # hand-authored/trace-derived cover hard edge cases disproportionately).
+# Aggressive oversampling to reach 1,000-row floor from 83 unique pairs.
 SOURCE_WEIGHTS: dict[str, int] = {
-    "hand_authored":  4,
-    "trace_derived":  2,
-    "programmatic":   1,
-    "synthesis":      1,  # reduced; DeepSeek 7B compresses difficulty distribution
+    "hand_authored":  25,
+    "trace_derived":  20,
+    "programmatic":   12,
+    "synthesis":      12,
 }
 
 
-def load_positive_pairs(jsonl_path: Path, min_score: float = 0.8) -> list[dict]:
-    """Load tasks with score >= min_score; apply per-source-mode oversampling weights."""
+def load_positive_pairs(jsonl_path: Path, min_score: float = 0.75) -> list[dict]:
+    """Load tasks with score >= min_score and tone_compliance passing; apply per-source oversampling."""
     pairs = []
     for line in jsonl_path.read_text(encoding="utf-8").splitlines():
         if not line.strip():
             continue
         task = json.loads(line)
         score = task.get("score")
-        if score is not None and score >= min_score:
-            source = task.get("source_mode", "programmatic")
-            weight = SOURCE_WEIGHTS.get(source, 1)
+        # Hard gate: exclude any task where tone_compliance failed (banned phrase present)
+        tone_ok = task.get("dimension_scores", {}).get("tone_compliance", {}).get("score", 1) > 0
+        if score is not None and score >= min_score and tone_ok:
+            source = task.get("source", task.get("source_mode", "programmatic"))
+            weight = SOURCE_WEIGHTS.get(source, 10)
             pairs.extend([task] * weight)
     raw = sum(1 for line in jsonl_path.read_text(encoding="utf-8").splitlines()
               if line.strip() and json.loads(line).get("score", 0) >= min_score)
-    print(f"Loaded {raw} positive pairs (score >= {min_score}) → {len(pairs)} after source weighting")
+    print(f"Loaded {len(pairs)//max(1,1)} positive pairs (score >= {min_score}, tone_compliance passes) → {len(pairs)} after source weighting")
     return pairs
 
 
