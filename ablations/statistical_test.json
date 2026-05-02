@@ -1,0 +1,113 @@
+{
+  "meta": {
+    "description": "Paired bootstrap (n=10,000) + Wilcoxon signed-rank tests for Tenacious-Bench v0.1 ablation",
+    "n_tasks": 62,
+    "bootstrap_seed": 42,
+    "n_bootstrap": 10000,
+    "pass_threshold": 0.75,
+    "conditions": {
+      "B0": "Unguarded baseline — pre-guardrail candidate outputs in held_out.jsonl",
+      "B1": "Guarded prompt-only — full Style Guide v2 system prompt + 5 guardrails",
+      "B2": "SFT adapter — tenacious-lora-v2 (Qwen2.5-1.5B, LoRA r=16 a=32, 100 steps)"
+    }
+  },
+  "descriptive": {
+    "B0_unguarded": {
+      "mean_score": 0.697581,
+      "n_pass": 26,
+      "pass_rate": 0.4194,
+      "pass_rate_ci_95": [
+        0.3048,
+        0.5433
+      ]
+    },
+    "B1_guarded": {
+      "mean_score": 0.799194,
+      "n_pass": 31,
+      "pass_rate": 0.5,
+      "pass_rate_ci_95": [
+        0.3792,
+        0.6208
+      ]
+    },
+    "B2_adapter": {
+      "mean_score": 0.88629,
+      "n_pass": 62,
+      "pass_rate": 1.0,
+      "pass_rate_ci_95": [
+        0.9417,
+        1.0
+      ]
+    }
+  },
+  "delta_A_adapter_vs_unguarded": {
+    "description": "B2 (SFT adapter) vs B0 (unguarded baseline)",
+    "observed_delta_mean": 0.18871,
+    "bootstrap": {
+      "observed_delta": 0.18871,
+      "ci_95_lo": 0.155645,
+      "ci_95_hi": 0.224194,
+      "p_value_one_sided": 0.0,
+      "significant_at_0.05": true,
+      "n_bootstrap": 10000
+    },
+    "wilcoxon": {
+      "W_plus": 0,
+      "W_minus": 1485.0,
+      "z": -6.3931,
+      "p_approx_two_sided": 0.0,
+      "significant_at_0.05": true
+    },
+    "per_task": {
+      "improved": 54,
+      "same": 8,
+      "degraded": 0
+    },
+    "conclusion": "SIGNIFICANT"
+  },
+  "delta_B_adapter_vs_guarded": {
+    "description": "B2 (SFT adapter) vs B1 (guarded prompt-only) — primary test",
+    "observed_delta_mean": 0.087097,
+    "bootstrap": {
+      "observed_delta": 0.087097,
+      "ci_95_lo": 0.056452,
+      "ci_95_hi": 0.117742,
+      "p_value_one_sided": 0.0,
+      "significant_at_0.05": true,
+      "n_bootstrap": 10000
+    },
+    "wilcoxon": {
+      "W_plus": 286.5,
+      "W_minus": 1543.5,
+      "z": -4.6268,
+      "p_approx_two_sided": 4e-06,
+      "significant_at_0.05": true
+    },
+    "per_task": {
+      "improved": 41,
+      "same": 2,
+      "degraded": 19
+    },
+    "conclusion": "SIGNIFICANT — SFT training beats guarded prompt-only baseline"
+  },
+  "delta_G_guardrails_vs_unguarded": {
+    "description": "B1 (guarded) vs B0 (unguarded) — guardrail lift",
+    "observed_delta_mean": 0.101613,
+    "bootstrap": {
+      "observed_delta": 0.101613,
+      "ci_95_lo": 0.062097,
+      "ci_95_hi": 0.141935,
+      "p_value_one_sided": 0.0,
+      "significant_at_0.05": true,
+      "n_bootstrap": 10000
+    },
+    "wilcoxon": {
+      "W_plus": 240.0,
+      "W_minus": 1086.0,
+      "z": -3.965,
+      "p_approx_two_sided": 7.3e-05,
+      "significant_at_0.05": true
+    },
+    "conclusion": "SIGNIFICANT"
+  }
+}
