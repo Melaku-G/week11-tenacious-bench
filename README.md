@@ -168,3 +168,138 @@ tau2-Bench pass@1 (0.70) does not predict Tenacious failure rates — unguarded 
 **Held-out partition is sealed.**  
 Do not use `held_out.jsonl` for training data selection, hyperparameter tuning, or interim
 reporting. It is used exactly once — for the final ablation on Day 6.
+
+---
+# Tenacious-Bench v0.1
+
+A domain-specific evaluation benchmark for B2B sales outreach agents.
+
+## What This Is
+
+Tenacious-Bench v0.1 is a 408-task benchmark covering failure modes that 
+general benchmarks (τ²-Bench, HELM) do not capture for B2B SDR agents:
+
+- **FC-1** Hallucinated firmographics (~30% unguarded rate)
+- **FC-2** Segment-gate bypass — AI pitch to low-maturity companies (~20%)
+- **FC-3** Signal overclaim — fabricated funding/growth claims (~40%)
+- **FC-5** Missing confidence hedging (~25%)
+
+## Results
+
+| Condition | Score | Delta |
+|---|---|---|
+| Unguarded baseline | 0.6976 | — |
+| Prompt-only guarded | 0.7992 | +0.1016 |
+| **Trained adapter (v0.1)** | **0.8863** | **+0.1887** |
+
+Delta A: +0.1887 (95% CI [+0.155, +0.224], p<0.0001, n=62)  
+Delta B: +0.0871 — training beat prompt-only (p<0.0001)  
+Adapter is 2.4x faster than base guarded model.
+
+## Dataset
+
+- HuggingFace: https://huggingface.co/datasets/Mella123/tenacious-bench-v0.1
+- 408 tasks: 235 train / 111 dev / 62 held-out
+- Sources: programmatic, synthesis, trace-derived, hand-authored
+
+## Quickstart
+
+```python
+from datasets import load_dataset
+
+dataset = load_dataset("Mella123/tenacious-bench-v0.1", split="train")
+print(dataset[0])
+```
+
+## Adapter
+
+- HuggingFace: https://huggingface.co/Mella123/tenacious-bench-lora
+- Base: Qwen2.5-1.5B-Instruct
+- LoRA rank 16, alpha 32, trained on 1,016 examples
+
+```python
+from peft import PeftModel
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+base = AutoModelForCausalLM.from_pretrained("Qwen/Qwen2.5-1.5B-Instruct")
+model = PeftModel.from_pretrained(base, "Mella123/tenacious-bench-lora")
+tokenizer = AutoTokenizer.from_pretrained("Mella123/tenacious-bench-lora")
+```
+
+## Repo Structure
+tenacious_bench_v0.1/   — dataset partitions
+training_data/          — SFT training file
+adapter/                — LoRA weights + loss curve
+synthesis_memos/        — 7 literature review memos
+ablation_results.json   — Delta A/B/C + Cost-Pareto
+evidence_graph.json     — claims linked to sources
+memo.pdf                — CEO/CFO executive memo
+training_run.log        — hyperparameters + loss curve
+
+ Community
+
+- τ²-Bench issue: https://github.com/sierra-research/tau2-bench/issues/280
+
+## Citation
+
+```bibtex
+@misc{tenacious-bench-2026,
+  title={Tenacious-Bench v0.1: Domain-Specific Evaluation for B2B Sales Outreach Agents},
+  author={Melaku Y.},
+  year={2026},
+  url={https://huggingface.co/datasets/Mella123/tenacious-bench-v0.1}
+}
+```
+## Artifacts
+
+| Artifact | URL |
+|----------|-----|
+| HuggingFace dataset (train + dev) | [Mella123/tenacious-bench-v0.1](https://huggingface.co/datasets/Mella123/tenacious-bench-v0.1) |
+| HuggingFace LoRA adapter | [Mella123/tenacious-bench-lora](https://huggingface.co/Mella123/tenacious-bench-lora) |
+| Technical blog post | [dev.to — Tenacious-Bench v0.1](https://dev.to/mella123/tenacious-bench-v01-what-happens-when-you-evaluate-a-b2b-sales-agent-on-tasks-it-was-never-2hc3) |
+| τ²-Bench community issue | [sierra-research/tau2-bench #280](https://github.com/sierra-research/tau2-bench/issues/280) |
+
+**Key results (held-out, n=62):** SFT adapter mean score 0.8863 · ΔB = +0.087 vs guarded baseline (p ≈ 0, 95% CI [0.057, 0.118]) · 54/62 tasks improved · 0 degraded · 2.4× latency speedup.
+
+Full statistical test output: [`ablations/statistical_test.json`](ablations/statistical_test.json)
+
+---
+
+## Dependencies
+
+```bash
+# Production agent + bench tooling
+pip install -r ../requirements.txt
+
+# Pinned versions (for exact reproducibility)
+pip install -r ../requirements-pinned.txt
+
+# SFT training — Colab T4 only
+pip install "unsloth[colab-new] @ git+https://github.com/unslothai/unsloth.git"
+pip install trl==0.12.0 transformers==4.47.0 peft==0.14.0 datasets==3.2.0
+```
+
+---
+
+## License
+
+MIT — see [`LICENSE`](../LICENSE) in the repository root.
+
+---
+
+## Credits and Attribution
+
+**Author:** Melaku Y. ([@Mella123](https://huggingface.co/Mella123)) — 10Academy TRP1 Week 11 Challenge.
+
+**Base model:** [Qwen2.5-1.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct) by Alibaba Cloud (Apache 2.0). Pinned revision: `5cd9344` — see `training/train.py`.
+
+**Training framework:** [Unsloth](https://github.com/unslothai/unsloth) — fast LoRA fine-tuning for Colab T4.
+
+**Enrichment data:** [Crunchbase Open Data](https://data.crunchbase.com/docs) — company firmographic samples used under Crunchbase's non-commercial research terms.
+
+**Papers cited:**
+- Zhou et al. (2023). *LIMA: Less Is More for Alignment.* NeurIPS 2023. §4 — quality-over-quantity SFT finding.
+- Xu et al. (2024). *Magpie: Alignment Data Synthesis from Scratch.* arXiv 2024. §3.3 — difficulty-distribution oversampling.
+- Lambert et al. (2024). *Tülu 3: Pushing Frontiers in Open Language Model Post-Training.* arXiv 2024. §4.2 — DPO judge quality requirement.
+- Gebru et al. (2021). *Datasheets for Datasets.* CACM 64(12). — datasheet structure.
+- Pushkarna et al. (2022). *Data Cards.* FAccT 2022. — layered documentation structure.
