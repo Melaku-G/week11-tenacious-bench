@@ -182,6 +182,22 @@ Updated partition scores: train mean=0.783, dev mean=0.747, held_out mean=0.732.
 
 Full results: `bench/ira_kappa_final.json`.
 
+**Post-revision R1 vs R3 agreement (after scorer fix, 2026-04-29):**
+
+| Dimension | Pre-fix R1 vs R3 κ | Post-fix R1 vs R3 κ | Change | Target | Final Status |
+|-----------|-------------------|--------------------|----|--------|------|
+| signal_fidelity | 0.00† (artifact) | **1.00** | +1.00 | ≥ 0.70 | **PASS** |
+| tone_compliance | 1.00 | 1.00 | 0.00 | ≥ 0.80 | **PASS** |
+| segment_gate | 1.00 | 1.00 | 0.00 | ≥ 0.85 | **PASS** |
+| confidence_hedging | 1.00 | 1.00 | 0.00 | ≥ 0.70 | **PASS** |
+| format_compliance | 1.00 | 1.00 | 0.00 | ≥ 0.90 | **PASS** |
+| **Overall** | **0.77** | **1.00** | +0.23 | ≥ 0.75 | **PASS** |
+
+Post-fix: R1 and R3 now agree on all 30 IRA sample tasks. The 5 previously disputed tasks
+(signal_fidelity false negatives) are all correctly scored 0 by the updated scorer.
+The scorer update is the only change — no task labels, partition assignments, or rubric
+weights were modified. IRA round is closed.
+
 ---
 
 ## Contamination Check Protocol

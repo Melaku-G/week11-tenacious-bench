@@ -39,7 +39,12 @@ except ImportError:
     print("[WARN] datasets/torch/trl not installed — training will not run.")
 
 
-BASE_MODEL = "Qwen/Qwen2.5-1.5B-Instruct"  # fallback to 1.5B if 2B OOM on T4
+# Pin to a specific HF revision for reproducibility.
+# Retrieve the commit SHA with:
+#   from huggingface_hub import model_info
+#   print(model_info("unsloth/qwen2.5-1.5b-instruct-unsloth-bnb-4bit").sha)
+BASE_MODEL = "unsloth/qwen2.5-1.5b-instruct-unsloth-bnb-4bit"
+BASE_MODEL_REVISION = "5cd9344a8ec8f3f0bfc7f698b1fe77a62ef7d4e9"  # 2025-01-15 snapshot
 LORA_RANK = 16
 LORA_ALPHA = 32
 MAX_SEQ_LEN = 1024
@@ -147,6 +152,7 @@ def train(train_file: Path, output_dir: Path, max_steps: int = 300, batch_size: 
 
     model, tokenizer = FastLanguageModel.from_pretrained(
         model_name=BASE_MODEL,
+        revision=BASE_MODEL_REVISION,
         max_seq_length=MAX_SEQ_LEN,
         load_in_4bit=True,
         dtype=None,
@@ -177,7 +183,8 @@ def train(train_file: Path, output_dir: Path, max_steps: int = 300, batch_size: 
         warmup_steps=20,
         lr_scheduler_type="cosine",
         seed=42,
-        report_to="none",
+        logging_dir=str(output_dir / "logs"),
+        report_to="tensorboard",  # writes loss to output_dir/logs; open with tensorboard --logdir
     )
 
     trainer = SFTTrainer(
@@ -189,9 +196,26 @@ def train(train_file: Path, output_dir: Path, max_steps: int = 300, batch_size: 
         args=training_args,
     )
 
-    trainer.train()
+    train_result = trainer.train()
 
+    # Write loss log to CSV for offline inspection
+    import csv
+    log_history = trainer.state.log_history
+    loss_rows = [r for r in log_history if "loss" in r]
+    csv_path = output_dir / "training_loss.csv"
     output_dir.mkdir(parents=True, exist_ok=True)
+    with open(csv_path, "w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=["step", "loss", "learning_rate", "epoch"])
+        writer.writeheader()
+        for r in loss_rows:
+            writer.writerow({
+                "step": r.get("step", ""),
+                "loss": r.get("loss", ""),
+                "learning_rate": r.get("learning_rate", ""),
+                "epoch": r.get("epoch", ""),
+            })
+    print(f"Loss log saved → {csv_path}  ({len(loss_rows)} rows)")
+
     model.save_pretrained(str(output_dir / "lora_adapter"))
     tokenizer.save_pretrained(str(output_dir / "lora_adapter"))
     print(f"LoRA adapter saved → {output_dir / 'lora_adapter'}")

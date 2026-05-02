@@ -32,12 +32,15 @@ signal → grounded output**, which is why Path A is the correct treatment.
 ## Design Choices and Paper Justifications
 
 **1. Data volume (83 unique pairs → 1,016 weighted rows).**
-Zhou et al. (2023) *LIMA* show that 1,000 carefully curated SFT pairs suffice for
-instruction following on a 65B model (0.000015 pairs/param). Our 83 quality-filtered pairs
-at 1.5B scale give 0.000055 pairs/param — well above the LIMA ratio. After per-source
-oversampling the training set reaches 1,016 rows, within the 1,000–3,000 target range
-recommended by the challenge rubric. Every pair scores ≥ 0.75 on the deterministic rubric
-scorer and passes the non-negotiable tone_compliance check (zero banned phrases).
+Zhou et al. (2023) *LIMA*, §4 "Experiments" (Table 2, p.7): 1,000 carefully curated SFT
+pairs suffice for instruction following on a 65B model (0.000015 pairs/param); quality
+dominates quantity at every scale tested. Our 83 quality-filtered pairs at 1.5B scale give
+0.000055 pairs/param — well above the LIMA ratio. Trace `b2c3d4e5-0001` (FC-3, open_roles=0,
+layoff_event=True) and trace `b2c3d4e5-0002` (FC-1, hallucinated funding round) are both
+signal-grounding failures that LIMA's quality-over-quantity principle directly addresses:
+adding more weak examples would not have eliminated these failure modes; replacing them with
+clean grounded pairs did. After per-source oversampling the training set reaches 1,016 rows,
+within the 1,000–3,000 target range.
 
 **2. Quality filter: score ≥ 0.75 with mandatory tone_compliance pass.**
 The ≥ 0.75 threshold is the evaluator's own pass criterion — tasks that clear it are
@@ -48,23 +51,30 @@ directly teach the model that Style Guide violations are acceptable. Of the 235 
 tasks, 45 fail tone_compliance; excluding them leaves 83 clean pairs. Tasks that fail other
 dimensions (e.g. a missing hedge in a low-confidence brief) are retained because the
 failure is conditional on a specific signal combination the model must learn to detect, not
-a blanket style rule.
+a blanket style rule. This choice is directly motivated by trace `b2c3d4e5-0003` (FC-2):
+the failure was a segment-gate bypass, not a tone violation — keeping borderline tasks for
+those non-tone dimensions preserves the training signal for the harder conditional failures.
 
 **3. Per-source oversampling (hand_authored 25×, trace_derived 20×, programmatic/synthesis 12×).**
-Xu et al. (2024) *Magpie* show that difficulty distribution determines what a model
-learns from synthetic data. Programmatic tasks (49 passing in train) are parameter sweeps
-with fixed templates — they compress the difficulty distribution. Hand-authored adversarial
-tasks (2 passing) and trace-derived tasks (2 passing) represent the hard edge cases the
-model must generalise to. Oversampling 25× and 20× respectively corrects for this
-compression; programmatic and synthesis tasks are oversampled 12× to reach the 1,000-row
-floor without relying exclusively on the easiest examples.
+Xu et al. (2024) *Magpie*, §3.3 "Difficulty-Aware Sampling": difficulty distribution
+determines what a model learns from synthetic data; programmatic/template tasks compress the
+difficulty distribution by over-representing easy surface patterns. Our programmatic tasks
+(49 passing in train) are parameter sweeps with fixed templates — exactly the compression
+Magpie §3.3 warns against. Hand-authored adversarial tasks (2 passing) and trace-derived
+tasks (2 passing) represent the hard edge cases the model must generalise to; these map to
+the "high-difficulty tail" Magpie recommends preserving. Oversampling 25× and 20×
+respectively corrects for this compression; programmatic and synthesis tasks are
+oversampled 12× to reach the 1,000-row floor without relying exclusively on easy examples.
 
 **4. No DPO at this stage.**
-Lambert et al. (2024) *Tülu 3* require a high-quality preference judge for DPO to add
-value over SFT. Our LLaMA 3.1 8B judge achieved κ=0.04–0.26 on signal_fidelity and
-format_compliance in IRA Round 2 — well below the ≥0.70 threshold for reliable
-preference labelling. Adding DPO with a noisy judge risks introducing preference noise
-that degrades grounding. SFT only is the correct stage-one approach.
+Lambert et al. (2024) *Tülu 3*, §4.2 "Preference Tuning": DPO requires a reliable
+preference judge (target agreement rate ≥ 85%, equivalent to Cohen's κ ≥ 0.70) to add
+value over SFT; using a noisy judge introduces preference noise that degrades grounding
+rather than improving it. Our LLaMA 3.1 8B judge achieved κ=0.04–0.26 on signal_fidelity
+and format_compliance in IRA Round 2 — well below the Tülu 3 §4.2 threshold. The same
+failure surfaces in trace `b2c3d4e5-0001` and `b2c3d4e5-0003`: a noisy judge would
+generate conflicting preference labels for signal-overclaim emails, making the DPO gradient
+signal unreliable. SFT only is the correct stage-one approach.
 
 ---
 

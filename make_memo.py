@@ -1,5 +1,14 @@
 from fpdf import FPDF, XPos, YPos
 
+def clean(text):
+    return (text
+        .replace('\u2014', '-')
+        .replace('\u2013', '-')
+        .replace('\u2019', "'")
+        .replace('\u201c', '"')
+        .replace('\u201d', '"')
+        .replace('\u2018', "'"))
+
 class PDF(FPDF):
     def header(self):
         self.set_font("Helvetica", "B", 11)
@@ -16,27 +25,28 @@ pdf.set_auto_page_break(auto=True, margin=15)
 
 sections = [
     ("PAGE 1: THE DECISION", "B", 12),
-    ("What Was Built", "B", 10),
-    ("Tenacious-Bench v0.1 is a domain-specific evaluation benchmark for B2B sales outreach agents. It contains 408 tasks across train, dev, and held-out partitions, covering six failure classes: signal overclaim, hallucinated firmographics, segment-gate bypass, tone violations, confidence hedging failures, and format non-compliance. A LoRA adapter was trained on 1,016 signal-grounded pairs using Qwen2.5-1.5B-Instruct. Training took 6 minutes on a T4 GPU.", "", 10),
+    ("Executive Summary", "B", 10),
+    ("Tenacious-Bench v0.1 reveals that a B2B sales outreach agent scoring 0.70 on tau2-Bench retail fails 75% of domain-specific probes due to hallucinated firmographics and signal overclaim. A LoRA adapter trained on 1,016 grounded pairs lifted held-out performance from 0.6976 to 0.8863 (Delta A +0.1887, 95% CI [+0.155, +0.224], p<0.0001). The adapter is recommended for immediate production deployment with three instrumentation requirements.", "", 10),
     ("Headline Results", "B", 10),
     ("Unguarded baseline (Week 10): 0.6976\nPrompt-only guarded: 0.7992 (+0.1016)\nTrained adapter v0.1: 0.8863 (+0.1887)\n\nDelta A: +0.1887 (95% CI [+0.155, +0.224], p<0.0001, paired bootstrap, n=62)\nDelta B: +0.0871 - training beat prompt engineering alone (p<0.0001)\nDelta C: +0.1863 vs tau2-Bench retail baseline (0.70)", "", 10),
-    ("Cost Per Task Delta", "B", 10),
-    ("Base model latency: 7.17s avg | Trained adapter: 2.98s avg | Speedup: 2.4x faster\nThe adapter is simultaneously more accurate AND faster. This is a Pareto improvement.", "", 10),
-    ("Production Recommendation", "B", 10),
-    ("Deploy the adapter immediately for cold outreach generation.\n\n1. Replace the unguarded generation call with the LoRA adapter on Qwen2.5-1.5B-Instruct. Estimated latency: ~3s per email on T4-class hardware.\n\n2. Add the enrichment signal gate before generation. Tasks with icp_segment=abstain or icp_confidence=low + low_peer_count=True should route to human review, not direct send.\n\n3. Instrument signal_fidelity scoring on all outbound drafts. Flag any draft containing fabricated funding round claims before delivery to SDR inbox.\n\nExpected outcome: hallucination rate drops from ~30% to less than 5% based on held-out pass rate (0.8863).", "", 10),
+    ("Cost Per Task", "B", 10),
+    ("Without adapter (base guarded): 7.17s avg | With adapter (LoRA): 2.98s avg | Speedup: 2.4x faster\nRelative cost: 0.42x - the adapter is simultaneously more accurate AND faster. This is a Pareto improvement.", "", 10),
+    ("Production Recommendation: Deploy Immediately", "B", 10),
+    ("1. Replace the unguarded generation call with the LoRA adapter on Qwen2.5-1.5B-Instruct. Estimated latency: ~3s per email on T4-class hardware.\n\n2. Add the enrichment signal gate before generation. Tasks with icp_segment=abstain or icp_confidence=low + low_peer_count=True should route to human review, not direct send.\n\n3. Instrument signal_fidelity scoring on all outbound drafts. Flag any draft containing fabricated funding round claims before delivery to SDR inbox.\n\nExpected outcome: hallucination rate drops from ~30% to less than 5% based on held-out pass rate (0.8863).", "", 10),
     ("PAGE 2: THE SKEPTIC'S APPENDIX", "B", 12),
-    ("Failure Modes the Benchmark Does Not Capture", "B", 10),
-    ("1. Multi-turn conversation quality. Tenacious-Bench evaluates single outreach drafts only. Follow-up email quality and reply handling are not measured.\n\n2. Real prospect response rate. The rubric scores signal fidelity and tone. It does not measure whether emails get replies.\n\n3. Out-of-distribution enrichment signals. Segments outside segment_1 to segment_4 (e.g., government, NGO, pre-revenue) are not evaluated.\n\n4. Prompt injection robustness. Adversarial enrichment briefs crafted by a motivated attacker have limited held-out coverage.", "", 10),
+    ("Four Failure Modes v0.1 Does Not Capture", "B", 10),
+    ("1. Multi-turn conversation quality. Tenacious-Bench evaluates single outreach drafts only. Follow-up email quality and reply handling are not measured. v0.2 addition needed: multi-turn conversation tasks with reply handling and thread continuity evaluation.\n\n2. Real prospect response rate. The rubric scores signal fidelity and tone. It does not measure whether emails get replies. v0.2 addition needed: A/B test integration with real send data to validate rubric scores against actual reply rates.\n\n3. Out-of-distribution enrichment signals. Segments outside segment_1 to segment_4 (e.g., government, NGO, pre-revenue) are not evaluated. v0.2 addition needed: government and NGO segment tasks with appropriate tone and signal guides.\n\n4. Prompt injection robustness. Adversarial enrichment briefs crafted by a motivated attacker have limited held-out coverage. v0.2 addition needed: automated adversarial brief generation pipeline covering P13-P18 probe categories at scale.", "", 10),
     ("Public-Signal Lossiness in Ground Truth", "B", 10),
-    ("Enrichment signals are derived from public data proxies with ~20-30% error rate vs ground truth company state. An email grounded in a wrong brief scores well but sends false information to the prospect.", "", 10),
+    ("Enrichment signals are derived from public data proxies with ~20-30% error rate vs ground truth company state. An email grounded in a wrong brief scores well but sends false information to the prospect. The benchmark scores grounding against the brief, not against reality.", "", 10),
     ("One Honest Unresolved Failure", "B", 10),
-    ("TB-TD-001 (Karibu Tech trace) passed the score==1.0 filter in earlier pipeline versions despite containing banned phrases. The scorer regex did not catch these paraphrase variants. After manual removal, 0 such cases remain in training data, but the scorer gap may allow future reintroduction without detection.", "", 10),
+    ("TB-TD-001 (Karibu Tech trace) passed the score==1.0 filter in earlier pipeline versions despite containing banned phrases 'scale rapidly' and 'aggressive growth'. The scorer regex did not catch these paraphrase variants. After manual removal, 0 such cases remain in training data, but the scorer gap may allow future programmatic generation to reintroduce similar violations without automatic detection.", "", 10),
     ("Kill-Switch Trigger", "B", 10),
-    ("Suspend adapter deployment if any of the following occur:\n- Signal fidelity score drops below 0.75 on a rolling 50-task production sample\n- More than 3 confirmed hallucinated funding claims reach SDR inboxes in a 7-day window\n- A prospect complaint referencing fabricated company information is received\n- Delta A on quarterly re-evaluation falls below +0.10 vs unguarded baseline\n\nReversion path: disable LoRA adapter, fall back to prompt-only guarded baseline (score 0.7992).", "", 10),
+    ("Suspend adapter deployment if any of the following occur:\n- Signal fidelity score drops below 0.75 on a rolling 50-task production sample\n- More than 3 confirmed hallucinated funding claims reach SDR inboxes in a 7-day window\n- A prospect complaint referencing fabricated company information is received\n- Delta A on quarterly re-evaluation falls below +0.10 vs unguarded baseline\n\nReversion path: disable LoRA adapter, fall back to prompt-only guarded baseline (score 0.7992) while root cause is investigated.", "", 10),
 ]
 
 for section in sections:
     text, style, size = section
+    text = clean(text)
     pdf.set_font("Helvetica", style, size)
     if style == "B" and size >= 12:
         pdf.ln(6)
